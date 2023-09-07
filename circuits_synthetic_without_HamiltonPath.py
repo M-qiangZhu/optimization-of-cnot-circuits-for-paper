@@ -10,7 +10,7 @@ from qiskit.visualization import plot_histogram
 # from qiskit.test.mock import FakeYorktown
 from qiskit.providers.fake_provider import FakeYorktown
 
-from my_tools.graph import IbmQuito, IbmqGuadalupe, IbmqGuadalupe_new
+from my_tools.graph import IbmQuito, IbmqGuadalupe, IbmqGuadalupe_new, IbmqKolkata_new
 from my_tools.my_parity_maps import CNOT_tracker
 from networkx.algorithms import approximation
 from my_tools.my_linalg import Mat2
@@ -824,19 +824,15 @@ def col_row_eli_of_ibmq_guadalupe(file_name):
 
 def col_row_eli_of_ibmq_kolkata(file_name):
     # 1. 获取 ibmq_quito 架构的图
-    ibmq_guadalupe = IbmqGuadalupe_new()
-    graph = ibmq_guadalupe.get_graph()
+    ibmq_kolkata = IbmqKolkata_new()
+    graph = ibmq_kolkata.get_graph()
     # 2. 读取线路生成矩阵
     circuit_file = file_name
-    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
     matrix = get_circuits_to_matrix(circuit_file)
     print("matrix :")
     print(matrix)
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
-
-    # print(f"eli_order : {eli_order}")
-    # print(f"eli_order类型 : {type(eli_order)}")
     # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
@@ -845,7 +841,7 @@ def col_row_eli_of_ibmq_kolkata(file_name):
     # eli_order = [0, 4, 3, 1, 2]
     update_matrix(matrix, order)
     print(matrix)
-    eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
     # 默认进行行列消元
     col_flag = True
     for index in eli_order:
@@ -942,7 +938,8 @@ def col_row_eli_of_ibmq_kolkata(file_name):
         col_flag = True
     print(f"所有CNOT门: {CNOT}")
     # 将 CNOT 根据映射转换
-    map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 9, 9: 8, 10: 10, 11: 11, 12: 14, 13: 13, 14: 12, 15: 15}
+    map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 9, 9: 8, 10: 10, 11: 11, 12: 12, 13: 13,
+                14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 20, 20: 19, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26}
     # map_dict = {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
     # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4}
     # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 4: 4}
@@ -1099,7 +1096,7 @@ if __name__ == '__main__':
     # test_gen_circuit(16, f"./circuits/benchmark/15_and_16_qubits_test/16qubit_circuit/hwb_12.qasm")
 
     # 一次执行5, 16, 27, 65, 127量子位线路
-    qubits_list = [5, 16, 27, 65, 127]
+    """qubits_list = [5, 16, 27, 65, 127]
     for qubits in qubits_list:
         if qubits == 5:
             cnots = col_row_eli_of_ibmquatio(f'./circuits/benchmark/B&D/B&D_circuits/Bernstein-Vazirani-{qubits}qubits.qasm')
@@ -1108,6 +1105,13 @@ if __name__ == '__main__':
         elif qubits == 16:
             cnots = col_row_eli_of_ibmq_guadalupe(f'./circuits/benchmark/B&D/B&D_circuits/Bernstein-Vazirani-{qubits}qubits.qasm')
             test_gen_circuit_new(qubits, cnots)
+        elif qubits == 27:
+            cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/Bernstein-Vazirani-{qubits}qubits.qasm')
+            test_gen_circuit_new(qubits, cnots)
         else:
-            pass
+            pass"""
 
+
+    qubits = 27
+    cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/Bernstein-Vazirani-27qubits-delete-singlegate.qasm')
+    test_gen_circuit_new(qubits, cnots)

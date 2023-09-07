@@ -111,6 +111,15 @@ class IbmqGuadalupe_new:
         self.graph.add_nodes_from(self.vertex)
         self.graph.add_edges_from(self.edges)
 
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
 
 class IbmqKolkata:
     def __init__(self):
@@ -126,14 +135,35 @@ class IbmqKolkata:
         self.graph.add_nodes_from(self.vertex)
         self.graph.add_edges_from(self.edges)
 
-
     def get_graph(self):
         return self.graph
-
 
     def draw_graph(self):
         draw_graph(self.graph, self.pos)
 
+    def get_degree(self):
+        return self.graph.degree()
+
+
+class IbmqKolkata_new:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+        self.edges = [(0, 1), (1, 4), (1, 2), (4, 7), (7, 6), (7, 10), (10, 12), (12, 15), (12, 13), (15, 18), (18, 17), (18, 21), (21, 23), (23, 24), (2, 3),
+                      (3, 5), (5, 9), (9, 8), (9, 11), (11, 14), (14, 13), (14, 16), (16, 20), (20, 19), (20, 22), (22, 25), (25, 24), (25, 26)]
+        self.pos = {6: [6, 2], 17: [14, 2],
+                    0: [0, 0], 1: [2, 0], 4: [4, 0], 7: [6, 0], 10: [8, 0], 12: [10, 0], 15: [12, 0], 18: [14, 0], 21: [16, 0], 23: [18, 0],
+                    2: [2, -2], 13: [10, -2], 24: [18, -2],
+                    3: [2, -4], 5: [4, -4], 9: [6, -4], 11: [8, -4], 14: [10, -4], 16: [12, -4], 20: [14, -4], 22: [16, -4], 25: [18, -4], 26: [20, -4],
+                    8: [6, -6], 19: [14, -6]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
 
     def get_degree(self):
         return self.graph.degree()
@@ -261,7 +291,7 @@ def test_IbmqGuadalupe():
 
 
 def test_IbmqKolkata():
-    kolkata = IbmqKolkata()
+    kolkata = IbmqKolkata_new()
     kolkata.draw_graph()
 
 

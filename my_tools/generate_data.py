@@ -1,3 +1,6 @@
+from itertools import combinations
+
+
 def test01():
     v = []
     for i in range(1, 67):
@@ -63,15 +66,55 @@ def test03():
         print(row_v_list)
         for i in range(len(sublists[row])):
             if row % 2 == 0:
-                dict_pos[row_v_list[i]] = [i * 2 + 1, 10-row]
+                dict_pos[row_v_list[i]] = [i * 2 + 1, 10 - row]
             if row % 2 != 0:
-                dict_pos[row_v_list[i]] = [i * 2, 10-row]
+                dict_pos[row_v_list[i]] = [i * 2, 10 - row]
     print(dict_pos)
+
+
+def row_add(row1, row2):
+    """Add r0 to r1"""
+    for i, v in enumerate(row1):
+        if v:
+            row2[i] = 0 if row2[i] else 1  # 当row1中某个值为1时, 将row2中的对应位置的值取反
+    return row2
+
+
+def get_row(m, row_index):
+    """
+    根据矩阵获取指定的行
+    :param m: 矩阵
+    :param row_index: 需要获取的行的索引
+    :return:
+    """
+    return m.data[row_index, :].tolist()
+
+
+def find_set_j(m, tar_row_index, row_tar, ei):
+    # 根据目标行, 生成待遍历的列表
+    length = m.rank()
+    all_set = []
+    print()
+    for i in range(1, length):
+        all_set += list(combinations([j for j in range(tar_row_index, length)], i))
+    for j_set in all_set:
+        # 暂存ei, 用来恢复ei
+        tmp_row = ei.copy()
+        for i in j_set:
+            row = get_row(m, i)
+            row_add(row, tmp_row)
+        if tmp_row == row_tar:
+            return list(j_set)
 
 
 if __name__ == '__main__':
     print([i for i in range(27)])
     dic1 = {}
-    for i in range(16):
+    for i in range(27):
         dic1[i] = i
     print(dic1)
+
+    all_set = []
+    for i in range(1, 27):
+        all_set += list(combinations([j for j in range(0, 27)], i))
+    print(all_set)
