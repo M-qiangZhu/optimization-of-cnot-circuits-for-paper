@@ -1111,7 +1111,8 @@ if __name__ == '__main__':
         else:
             pass"""
 
-
+    circuits_name_list = ["Bernstein-Vazirani", "Deutsch_Josza"]
     qubits = 27
-    cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/Bernstein-Vazirani-27qubits-delete-singlegate.qasm')
-    test_gen_circuit_new(qubits, cnots)
+    for cir in circuits_name_list:
+        cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-27qubits-delete-singlegate.qasm')
+        test_gen_circuit_new(qubits, cnots)
