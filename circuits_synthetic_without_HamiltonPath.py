@@ -988,7 +988,7 @@ def test_gen_circuit_old(qubits, file):
     # plt.show()
 
 
-def test_gen_circuit_new(qubits, cnots):
+def test_gen_circuit_new(qubits, cnots, file_name):
     # 根据cnot门列表, 生成线路
     circuit = QuantumCircuit(qubits)
     for cnot_gate in cnots:
@@ -998,7 +998,7 @@ def test_gen_circuit_new(qubits, cnots):
     circuit.measure_all()
     circuit.draw("mpl")
     print(circuit)
-    circuit.qasm(filename=f"add-exam/result-circuits/B&D_circuits_synthesize/Bernstein-Vazirani-{qubits}qubits_synthesis.qasm")
+    circuit.qasm(filename=f"add-exam/result-circuits/B&D_circuits_synthesize/{file_name}-{qubits}qubits_synthesis.qasm")
 
     # device_backend = FakeYorktown()
     #
@@ -1115,4 +1115,4 @@ if __name__ == '__main__':
     qubits = 27
     for cir in circuits_name_list:
         cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-27qubits-delete-singlegate.qasm')
-        test_gen_circuit_new(qubits, cnots)
+        test_gen_circuit_new(qubits, cnots, cir)
