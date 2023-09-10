@@ -108,13 +108,9 @@ def find_set_j(m, tar_row_index, row_tar, ei):
 
 
 if __name__ == '__main__':
-    print([i for i in range(27)])
+    print([i for i in range(65)])
     dic1 = {}
-    for i in range(27):
+    for i in range(65):
         dic1[i] = i
     print(dic1)
 
-    all_set = []
-    for i in range(1, 27):
-        all_set += list(combinations([j for j in range(0, 27)], i))
-    print(all_set)
