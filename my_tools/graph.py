@@ -58,9 +58,45 @@ class IbmQuito:
     def __init__(self):
         self.vertex = [0, 1, 2, 3, 4]
         self.edges = [(0, 3), (3, 4), (3, 2), (2, 1)]
-        # self.edges = [(0, 2), (2, 1), (2, 3), (3, 4)]
         self.pos = {0: [0, 0], 3: [2, 0], 4: [4, 0], 2: [2, -2], 1: [2, -4]}
-        # self.pos = {0: [0, 0], 2: [2, 0], 1: [4, 0], 3: [2, -2], 4: [2, -4]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
+
+class IbmqLagos:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4, 5, 6]
+        self.edges = [(0, 1), (1, 2), (1, 3), (3, 5), (5, 4), (5, 6)]
+        self.pos = {0: [0, 0], 1: [2, 0], 2: [4, 0], 3: [2, -2], 4: [0, -4], 5: [2, -4], 6: [4, -4]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
+
+class IbmqLagos_new:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4, 5, 6]
+        self.edges = [(0, 2), (2, 1), (2, 3), (3, 5), (5, 4), (5, 6)]
+        self.pos = {0: [0, 0], 2: [2, 0], 1: [4, 0], 3: [2, -2], 4: [0, -4], 5: [2, -4], 6: [4, -4]}
         self.graph = nx.Graph()
         self.graph.add_nodes_from(self.vertex)
         self.graph.add_edges_from(self.edges)
@@ -240,6 +276,7 @@ class IbmqManhattan_new:
     def get_degree(self):
         return self.graph.degree()
 
+
 class Xiaohong66:
     def __init__(self):
         self.vertex = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
@@ -371,9 +408,20 @@ def test_IbmqManhattan():
     manhattan.draw_graph()
 
 
+def test_IbmqLagos():
+    lagos = IbmqLagos()
+    lagos.draw_graph()
+
+
+def test_IbmqLagos_new():
+    lagos = IbmqLagos_new()
+    lagos.draw_graph()
+
+
 if __name__ == '__main__':
     # test_st1()
     # test_Xiaohong66()
     # test_IbmqGuadalupe()
     # test_IbmqKolkata()
-    test_IbmqManhattan()
+    # test_IbmqManhattan()
+    test_IbmqLagos_new()
