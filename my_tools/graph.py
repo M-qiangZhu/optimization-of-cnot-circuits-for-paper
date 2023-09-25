@@ -157,6 +157,56 @@ class IbmqGuadalupe_new:
         return self.graph.degree()
 
 
+class IbmqAlmaden:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        self.edges = [(0, 1), (1, 2), (1, 6), (2, 3), (3, 4), (3, 8),
+                      (5, 6), (5, 10), (6, 7), (7, 8), (7, 12), (8, 9), (9, 14),
+                      (10, 11), (11, 12), (11, 16), (12, 13), (13, 14), (13, 18),
+                      (15, 16), (16, 17), (17, 18), (18, 19)]
+        self.pos = {0: [0, 0], 1: [2, 0], 2: [4, 0], 3: [6, 0], 4: [8, 0],
+                    5: [0, -2], 6: [2, -2], 7: [4, -2], 8: [6, -2], 9: [8, -2],
+                    10: [0, -4], 11: [2, -4], 12: [4, -4], 13: [6, -4], 14: [8, -4],
+                    15: [0, -6], 16: [2, -6], 17: [4, -6], 18: [6, -6], 19: [8, -6]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
+
+class IbmqAlmaden_new:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        self.edges = [(0, 1), (1, 2), (1, 6), (2, 4), (4, 3), (4, 8),
+                      (5, 6), (5, 10), (6, 7), (7, 8), (7, 12), (8, 9), (9, 13),
+                      (10, 11), (11, 12), (11, 16), (12, 14), (14, 13), (14, 18),
+                      (15, 16), (16, 17), (17, 18), (18, 19)]
+        self.pos = {0: [0, 0], 1: [2, 0], 2: [4, 0], 4: [6, 0], 3: [8, 0],
+                    5: [0, -2], 6: [2, -2], 7: [4, -2], 8: [6, -2], 9: [8, -2],
+                    10: [0, -4], 11: [2, -4], 12: [4, -4], 14: [6, -4], 13: [8, -4],
+                    15: [0, -6], 16: [2, -6], 17: [4, -6], 18: [6, -6], 19: [8, -6]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
+
 class IbmqKolkata:
     def __init__(self):
         self.vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
@@ -418,10 +468,16 @@ def test_IbmqLagos_new():
     lagos.draw_graph()
 
 
+def test_IbmqAlmaden():
+    almaden = IbmqAlmaden_new()
+    almaden.draw_graph()
+
+
 if __name__ == '__main__':
     # test_st1()
     # test_Xiaohong66()
     # test_IbmqGuadalupe()
     # test_IbmqKolkata()
     # test_IbmqManhattan()
-    test_IbmqLagos_new()
+    # test_IbmqLagos_new()
+    test_IbmqAlmaden()
