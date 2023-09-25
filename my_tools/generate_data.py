@@ -109,10 +109,10 @@ def find_set_j(m, tar_row_index, row_tar, ei):
 
 if __name__ == '__main__':
     # print([i for i in range(65)])
-    dic1 = {}
-    for i in range(65):
-        dic1[i] = i
-    print(dic1)
+    # dic1 = {}
+    # for i in range(65):
+    #     dic1[i] = i
+    # print(dic1)
 
 #     dict = {}
 #     for i in range(10):
@@ -130,4 +130,6 @@ if __name__ == '__main__':
 #     for i in range(10):
 #         dict[i+55] = [2*i+2, -16]
 #     print(dict)
+
+    print('0'*27)
 

@@ -1263,6 +1263,6 @@ if __name__ == '__main__':
     circuits_name_list = ["Bernstein-Vazirani"]
     qubits = 65
     for cir in circuits_name_list:
-        cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-65qubits-delete-singlegate.qasm')
+        cnots = col_row_eli_of_ibmq_manhattan(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-65qubits-delete-singlegate.qasm')
         test_gen_circuit_new(qubits, cnots, cir)
 
