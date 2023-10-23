@@ -440,6 +440,53 @@ class Liner:
         return self.graph.degree()
 
 
+class WuKong:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        self.edges = [(0, 2), (1, 2), (2, 4), (4, 5),
+                      (3, 6), (5, 6), (6, 8), (7, 8), (8, 10), (9, 10), (9, 11)]
+        self.pos = {0: [0, 0], 1: [-2, -2], 2: [0, -2], 3: [4, -2],
+                    4: [0, -4], 5: [2, -4], 6: [4, -4],
+                    7: [2, -6], 8: [4, -6],
+                    9: [2, -8], 10: [4, -8],
+                    11: [2, -10]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
+class WuKong_new:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        self.edges = [(0, 2), (1, 2), (2, 4), (4, 5),
+                      (3, 6), (5, 6), (6, 8), (7, 8), (8, 9), (10, 9), (10, 11)]
+        self.pos = {0: [0, 0], 1: [-2, -2], 2: [0, -2], 3: [4, -2],
+                    4: [0, -4], 5: [2, -4], 6: [4, -4],
+                    7: [2, -6], 8: [4, -6],
+                    10: [2, -8], 9: [4, -8],
+                    11: [2, -10]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
+
 def test_st1():
     """ 测试Steiner树1 """
     # ver = ['0', '1', '2', '3', '4']
@@ -533,6 +580,10 @@ def test_IbmqTokyo():
     ibmqTokyo = IbmqTokyo_new()
     ibmqTokyo.draw_graph()
 
+def test_WuKong():
+    wukong = WuKong_new()
+    wukong.draw_graph()
+
 
 if __name__ == '__main__':
     # test_st1()
@@ -542,4 +593,5 @@ if __name__ == '__main__':
     # test_IbmqManhattan()
     # test_IbmqLagos_new()
     # test_IbmqAlmaden()
-    test_IbmqTokyo()
+    # test_IbmqTokyo()
+    test_WuKong()

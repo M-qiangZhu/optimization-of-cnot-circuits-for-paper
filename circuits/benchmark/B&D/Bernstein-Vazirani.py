@@ -10,7 +10,7 @@ from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister, transpile
 # import basic plot tools
 from qiskit.visualization import plot_histogram
 
-n = 126  # number of qubits used to represent s
+n = 11  # number of qubits used to represent s
 s = '1'*n  # the hidden binary string
 
 # We need a circuit with n qubits, plus one auxiliary qubit
