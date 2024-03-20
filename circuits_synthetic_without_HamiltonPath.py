@@ -236,6 +236,57 @@ def find_set_j(m, tar_row_index, row_tar, ei):
             return list(j_set)
 
 
+
+
+
+def find_set_j_new(m, tar_row_index, row_tar, ei):
+    """
+    利用剪枝算法实现
+    :param m:
+    :param tar_row_index:
+    :param row_tar:
+    :param ei:
+    :return:
+    """
+    # 1. 根据 matrix 的秩, 生成左孩子节点为0, 右孩子节点为1的满二叉树
+    # 2. 从第一层开始向下,进行深度遍历查找
+    # 3. 判断当前层,当前列和已选择路径上的列是否满足 Ri + ei 对应列的值
+    # 4. 如果满足, 找下一层
+    # 5. 如果不满足, 剪枝,  返回上一层, 继续查找
+
+    # 根据目标行, 生成待遍历的列表
+    length = m.rank()
+    all_set = []
+    print()
+    for i in range(1, length):
+        all_set += list(combinations([j for j in range(tar_row_index, length)], i))
+    for j_set in all_set:
+        # 暂存ei, 用来恢复ei
+        tmp_row = ei.copy()
+        for i in j_set:
+            row = get_row(m, i)
+            row_add(row, tmp_row)
+        if tmp_row == row_tar:
+            return list(j_set)
+
+
+# def find_set_j(m, tar_row_index, row_tar, ei):
+#     length = m.rank()
+#
+#     def generate_combinations():
+#         for i in range(1, length):
+#             for j_set in combinations(range(tar_row_index, length), i):
+#                 yield j_set
+#
+#     for j_set in generate_combinations():
+#         tmp_row = ei.copy()
+#         for i in j_set:
+#             row = get_row(m, i)
+#             row_add(row, tmp_row)
+#         if tmp_row == row_tar:
+#             return list(j_set)
+
+
 def row_elim_step1(m, node, cnot_list):
     if node is None:
         return
@@ -1215,6 +1266,7 @@ def col_row_eli_of_ibmq_kolkata(file_name):
     matrix = get_circuits_to_matrix(circuit_file)
     print("matrix :")
     print(matrix)
+    print(type(matrix))
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
     # 4. 记录CNOT门用来生成线路
@@ -1348,6 +1400,7 @@ def col_row_eli_of_ibmq_manhattan(file_name):
     matrix = get_circuits_to_matrix(circuit_file)
     print("matrix :")
     print(matrix)
+
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
     # 4. 记录CNOT门用来生成线路
@@ -1356,7 +1409,6 @@ def col_row_eli_of_ibmq_manhattan(file_name):
     # for index in range(rank):
     order = [0, 1, 2, 3, 4, 5, 6, 7, 9, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
              42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]
-    # eli_order = [0, 4, 3, 1, 2]
     update_matrix(matrix, order)
     print(matrix)
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
@@ -1461,12 +1513,6 @@ def col_row_eli_of_ibmq_manhattan(file_name):
                 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 34, 35: 35, 36: 36, 37: 37, 38: 38, 39: 39, 40: 40, 41: 41, 42: 42,
                 43: 43, 44: 44, 45: 45, 46: 46, 47: 47, 48: 48, 49: 49, 50: 50, 51: 51, 52: 52, 53: 53, 54: 54, 55: 55, 56: 56, 57: 57, 58: 58, 59: 59, 60: 60, 61: 61, 62: 62,
                 63: 63, 64: 64}
-    # map_dict = {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
-    # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4}
-    # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 4: 4}
-    # map_dict = {0: 2, 1: 4, 2: 3, 3: 1, 4: 0}
-    # map_dict = {0: 4, 1: 3, 2: 0, 3: 1, 4: 2}
-    # map_dict = {0: 4, 1: 3, 2: 2, 3: 1, 4: 0}
     new_CNOT = []
     for cnot in CNOT:
         control = map_dict.get(cnot[0])
@@ -1601,7 +1647,6 @@ def col_row_eli_of_wukong(file_name):
     return new_CNOT
 
 
-
 def test_gen_circuit_old(qubits, file):
     # file = "/Users/kungfu/PycharmWorkspace/Optimization_of_CNOT_circuits/circuits/steiner/5qubits/5/Original11.qasm"
     cnot = col_row_eli_of_ibmq_guadalupe(file)
@@ -1645,7 +1690,7 @@ def test_gen_circuit_new(qubits, cnots, file_name):
     circuit.measure_all()
     circuit.draw("mpl")
     print(circuit)
-    circuit.qasm(filename=f"add-exam/result-circuits/B&D_circuits_synthesize/{file_name}-{qubits}qubits_synthesis_tokyo.qasm")
+    circuit.qasm(filename=f"add-exam/result-circuits/B&D_circuits_synthesize/{file_name}-{qubits}qubits_synthesis.qasm")
 
     # device_backend = FakeYorktown()
     #
@@ -1749,12 +1794,12 @@ if __name__ == '__main__':
     #     cnots = col_row_eli_of_ibmq_lagos(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-{qubits}qubits-delete-singlegate.qasm')
     #     test_gen_circuit_new(qubits, cnots, cir)
 
-    # 遍历执行20量子位线路
-    circuits_name_list = ["Bernstein-Vazirani"]
-    qubits = 12
-    for cir in circuits_name_list:
-        cnots = col_row_eli_of_wukong(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-{qubits}qubits-delete-singlegate.qasm')
-        test_gen_circuit_new(qubits, cnots, cir)
+    # 遍历执行12量子位线路, 悟空架构
+    # circuits_name_list = ["Bernstein-Vazirani"]
+    # qubits = 12
+    # for cir in circuits_name_list:
+    #     cnots = col_row_eli_of_wukong(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-{qubits}qubits-delete-singlegate.qasm')
+    #     test_gen_circuit_new(qubits, cnots, cir)
 
     # 遍历执行20量子位线路
     # circuits_name_list = ["Bernstein-Vazirani"]
