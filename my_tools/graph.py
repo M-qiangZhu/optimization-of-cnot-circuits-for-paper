@@ -592,6 +592,6 @@ if __name__ == '__main__':
     # test_IbmqKolkata()
     # test_IbmqManhattan()
     # test_IbmqLagos_new()
-    # test_IbmqAlmaden()
+    test_IbmqAlmaden()
     # test_IbmqTokyo()
-    test_WuKong()
+    # test_WuKong()

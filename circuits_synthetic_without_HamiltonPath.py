@@ -1,3 +1,4 @@
+import time
 from itertools import combinations
 
 import numpy as np
@@ -1898,3 +1899,14 @@ if __name__ == '__main__':
     # for cir in circuits_name_list:
     #     cnots = col_row_eli_of_ibmq_manhattan(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-65qubits-delete-singlegate.qasm')
     #     test_gen_circuit_new(qubits, cnots, cir)
+
+
+    # ---------------------------------------------------------------------------
+    cir = "Bernstein-Vazirani"
+    qubits = 27
+    start_time = time.time()
+    cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-{qubits}qubits-delete-singlegate.qasm')
+    test_gen_circuit_new(qubits, cnots, cir)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print("Execution Time:", execution_time, "seconds")
