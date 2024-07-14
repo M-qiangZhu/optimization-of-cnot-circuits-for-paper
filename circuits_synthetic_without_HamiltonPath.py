@@ -11,7 +11,8 @@ from qiskit.visualization import plot_histogram
 # from qiskit.test.mock import FakeYorktown
 from qiskit.providers.fake_provider import FakeYorktown
 
-from my_tools.graph import IbmQuito, IbmqGuadalupe, IbmqGuadalupe_new, IbmqKolkata_new, IbmqManhattan_new, IbmqLagos_new, IbmqAlmaden_new, IbmqTokyo_new, WuKong, WuKong_new
+from my_tools.graph import IbmQuito, IbmqGuadalupe, IbmqGuadalupe_new, IbmqKolkata_new, IbmqManhattan_new, IbmqLagos_new, IbmqAlmaden_new, IbmqTokyo_new, WuKong, WuKong_new, \
+    IbmQuito_new
 from my_tools.my_parity_maps import CNOT_tracker
 from networkx.algorithms import approximation
 from my_tools.my_linalg import Mat2
@@ -38,9 +39,11 @@ def get_circuits_to_matrix(file_name, **kwargs):
     :return:
     """
     circuit = CNOT_tracker.from_qasm_file(file_name)
+    # print("打印线路")
+    # print(circuit)
     print(f"初始门数: {len(circuit.gates)}")
     mat = circuit.matrix
-    print(type(mat))
+    # print(type(mat))
     return mat
 
 
@@ -664,23 +667,27 @@ def test_get_node_eli_order():
 
 def col_row_eli_of_ibmquatio(file_name):
     # 1. 获取 ibmq_quito 架构的图
-    ibmq_quito = IbmQuito()
+    ibmq_quito = IbmQuito_new()
     graph = ibmq_quito.get_graph()
     # 2. 读取线路生成矩阵
-    circuit_file = file_name
     # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
+    # circuit = CNOT_tracker.from_qasm_file(circuit_file)
+    circuit_file = file_name
     matrix = get_circuits_to_matrix(circuit_file)
 
-    print("matrix :")
+    print("初始matrix :")
     print(matrix)
     # 3. 根据是否是割点, 生成消元序列
-    eli_order = get_node_eli_order(graph.copy())
-    print(f"eli_order : {eli_order}")
-    print(f"eli_order类型 : {type(eli_order)}")
+    # eli_order = get_node_eli_order(graph.copy())
     # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
+    order = [0, 4, 3, 1, 2]
+    # eli_order = [0, 4, 3, 1, 2]
+    matrix = update_matrix(matrix, order)
+    print("更新后的matrix :")
+    print(matrix)
     eli_order = [0, 1, 2, 3, 4]
     # eli_order = [0, 4, 3, 1, 2]
     # 默认进行行列消元
@@ -777,20 +784,16 @@ def col_row_eli_of_ibmquatio(file_name):
         graph.remove_node(index)
         # 恢复 列消元标志位
         col_flag = True
-    print(f"所有CNOT门: {CNOT}")
+    # print(f"所有CNOT门: {CNOT}")
     # 将 CNOT 根据映射转换
     map_dict = {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
-    # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4}
-    # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 4: 4}
-    # map_dict = {0: 2, 1: 4, 2: 3, 3: 1, 4: 0}
-    # map_dict = {0: 4, 1: 3, 2: 0, 3: 1, 4: 2}
-    # map_dict = {0: 4, 1: 3, 2: 2, 3: 1, 4: 0}
     new_CNOT = []
     for cnot in CNOT:
         control = map_dict.get(cnot[0])
         target = map_dict.get(cnot[1])
         new_CNOT.append((control, target))
-    print(new_CNOT)
+    # print(new_CNOT)
+    print(f"所有CNOT门: {new_CNOT}")
     return new_CNOT
 
 
@@ -1716,7 +1719,9 @@ def test_gen_circuit_old(qubits, file):
     circuit.measure_all()
     circuit.draw("mpl")
     print(circuit)
-    circuit.qasm(filename=f"add-exam/result-circuits/16qubits/hwb_12.qasm")
+    # circuit.qasm(filename=f"add-exam/result-circuits/16qubits/hwb_12.qasm")
+
+
 
     # device_backend = FakeYorktown()
     #
@@ -1817,15 +1822,30 @@ def update_matrix(matrix, order):
     :return:
     """
     matrix_rank = matrix.rank()
-    print(matrix_rank)
+    print(f"矩阵的秩为:{matrix_rank}")
     new_matrix = Mat2.id(matrix_rank)
-    print(new_matrix)
-    print(new_matrix.data[1][1])
+    x = np.array(new_matrix.data)
+    new_matrix.data = x
+    # print(new_matrix)
+    # print(new_matrix.data[1][1])
     for i in range(matrix_rank):
         for j in range(matrix_rank):
             new_matrix.data[i][j] = matrix.data[order[i]][order[j]]
-    print(new_matrix)
+    # print(new_matrix)
     return new_matrix
+
+
+def eli_of_ibmq_quatio(cnot_qasm):
+    cnots = col_row_eli_of_ibmquatio(cnot_qasm)
+    circuit = QuantumCircuit(5)
+    for cnot_gate in cnots:
+        control = cnot_gate[0]
+        target = cnot_gate[1]
+        circuit.cx(control, target)
+    # circuit.measure_all()
+    # circuit.draw("mpl")
+    # print(circuit)
+    return circuit
 
 
 if __name__ == '__main__':
@@ -1902,11 +1922,22 @@ if __name__ == '__main__':
 
 
     # ---------------------------------------------------------------------------
-    cir = "Bernstein-Vazirani"
-    qubits = 27
-    start_time = time.time()
-    cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-{qubits}qubits-delete-singlegate.qasm')
-    test_gen_circuit_new(qubits, cnots, cir)
-    end_time = time.time()
-    execution_time = end_time - start_time
-    print("Execution Time:", execution_time, "seconds")
+    # cir = "Bernstein-Vazirani"
+    # qubits = 27
+    # start_time = time.time()
+    # cnots = col_row_eli_of_ibmq_kolkata(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-{qubits}qubits-delete-singlegate.qasm')
+    # test_gen_circuit_new(qubits, cnots, cir)
+    # end_time = time.time()
+    # execution_time = end_time - start_time
+    # print("Execution Time:", execution_time, "seconds")
+
+    # ---------------------------------------------------------------------------
+    cnots = col_row_eli_of_ibmquatio('circuits/benchmark/5qubits/qasm/4gt5_75.qasm')
+    circuit = QuantumCircuit(5)
+    for cnot_gate in cnots:
+        control = cnot_gate[0]
+        target = cnot_gate[1]
+        circuit.cx(control, target)
+    circuit.measure_all()
+    circuit.draw("mpl")
+    print(circuit)

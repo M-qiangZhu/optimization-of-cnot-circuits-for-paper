@@ -57,6 +57,30 @@ class Graph:
 class IbmQuito:
     def __init__(self):
         self.vertex = [0, 1, 2, 3, 4]
+
+        # self.edges = [(0, 3), (3, 4), (3, 2), (2, 1)]
+        # self.pos = {0: [0, 0], 3: [2, 0], 4: [4, 0], 2: [2, -2], 1: [2, -4]}
+
+        self.edges = [(0, 1), (1, 2), (1, 3), (3, 4)]
+        self.pos = {0: [0, 0], 1: [2, 0], 2: [4, 0], 3: [2, -2], 4: [2, -4]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
+
+class IbmQuito_new:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4]
+
         self.edges = [(0, 3), (3, 4), (3, 2), (2, 1)]
         self.pos = {0: [0, 0], 3: [2, 0], 4: [4, 0], 2: [2, -2], 1: [2, -4]}
         self.graph = nx.Graph()
@@ -463,6 +487,7 @@ class WuKong:
     def get_degree(self):
         return self.graph.degree()
 
+
 class WuKong_new:
     def __init__(self):
         self.vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
@@ -580,9 +605,15 @@ def test_IbmqTokyo():
     ibmqTokyo = IbmqTokyo_new()
     ibmqTokyo.draw_graph()
 
+
 def test_WuKong():
     wukong = WuKong_new()
     wukong.draw_graph()
+
+
+def test_IbmQuito_new():
+    ibmq_quito = IbmQuito_new()
+    ibmq_quito.draw_graph()
 
 
 if __name__ == '__main__':
@@ -592,6 +623,8 @@ if __name__ == '__main__':
     # test_IbmqKolkata()
     # test_IbmqManhattan()
     # test_IbmqLagos_new()
-    test_IbmqAlmaden()
+    # test_IbmqAlmaden()
     # test_IbmqTokyo()
     # test_WuKong()
+
+    test_IbmQuito_new()

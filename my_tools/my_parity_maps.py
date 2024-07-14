@@ -65,8 +65,8 @@ class CNOT_tracker(Circuit):
 
         debug and print("new_circuit如下:")
         debug and print(new_circuit.matrix)
-        print("new_circuit如下:")
-        print(new_circuit.matrix)
+        # print("new_circuit如下:")
+        # print(new_circuit.matrix)
 
         return new_circuit
 
