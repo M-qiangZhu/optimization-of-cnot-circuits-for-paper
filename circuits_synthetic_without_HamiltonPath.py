@@ -1823,7 +1823,8 @@ def update_matrix(matrix, order):
     """
     matrix_rank = matrix.rank()
     print(f"矩阵的秩为:{matrix_rank}")
-    new_matrix = Mat2.id(matrix_rank)
+    # new_matrix = Mat2.id(matrix_rank)
+    new_matrix = Mat2(np.identity(matrix_rank))
     x = np.array(new_matrix.data)
     new_matrix.data = x
     # print(new_matrix)
