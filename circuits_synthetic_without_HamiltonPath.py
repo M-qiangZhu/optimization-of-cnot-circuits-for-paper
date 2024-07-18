@@ -950,7 +950,8 @@ def col_row_eli_of_ibmq_guadalupe(file_name):
     # for index in range(rank):
     order = [0, 1, 2, 3, 4, 5, 6, 7, 9, 8, 10, 11, 14, 13, 12, 15]
     # eli_order = [0, 4, 3, 1, 2]
-    update_matrix(matrix, order)
+    matrix = update_matrix(matrix, order)
+    print(f"更新后的matrix:")
     print(matrix)
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     # 默认进行行列消元
@@ -1050,12 +1051,6 @@ def col_row_eli_of_ibmq_guadalupe(file_name):
     print(f"所有CNOT门: {CNOT}")
     # 将 CNOT 根据映射转换
     map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 9, 9: 8, 10: 10, 11: 11, 12: 14, 13: 13, 14: 12, 15: 15}
-    # map_dict = {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
-    # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4}
-    # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 4: 4}
-    # map_dict = {0: 2, 1: 4, 2: 3, 3: 1, 4: 0}
-    # map_dict = {0: 4, 1: 3, 2: 0, 3: 1, 4: 2}
-    # map_dict = {0: 4, 1: 3, 2: 2, 3: 1, 4: 0}
     new_CNOT = []
     for cnot in CNOT:
         control = map_dict.get(cnot[0])
@@ -1839,6 +1834,19 @@ def update_matrix(matrix, order):
 def eli_of_ibmq_quatio(cnot_qasm):
     cnots = col_row_eli_of_ibmquatio(cnot_qasm)
     circuit = QuantumCircuit(5)
+    for cnot_gate in cnots:
+        control = cnot_gate[0]
+        target = cnot_gate[1]
+        circuit.cx(control, target)
+    # circuit.measure_all()
+    # circuit.draw("mpl")
+    # print(circuit)
+    return circuit
+
+
+def eli_of_ibmq_guadalupe(cnot_qasm):
+    cnots = col_row_eli_of_ibmq_guadalupe(cnot_qasm)
+    circuit = QuantumCircuit(16)
     for cnot_gate in cnots:
         control = cnot_gate[0]
         target = cnot_gate[1]

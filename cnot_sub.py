@@ -1,7 +1,17 @@
+# -*- coding: utf-8 -*-
+
+"""
+    @Author kungfu
+    @Date 2024/7/15 21:03
+    @Describe 
+    @Version 1.0
+"""
+
+
 from qiskit import QuantumCircuit
 import re
 
-from circuits_synthetic_without_HamiltonPath import eli_of_ibmq_quatio, eli_of_ibmq_guadalupe
+from circuits_synthetic_without_HamiltonPath import eli_of_ibmq_quatio
 
 # 存储qasm文件的地址 文件名cnot_subcircuit.qasm
 qasm_address = './cnot_subcircuit.qasm'
@@ -13,10 +23,10 @@ def get_data(str):
     return result
 
 
+
 '''
 读取qasm文件
 '''
-
 
 def converter_circ_from_qasm(input_file_name):
     gate_list = []
@@ -96,7 +106,7 @@ def converter_circ_from_qasm(input_file_name):
 def split_list(input_list):
     # 当前的子序列
     current_sequence = []
-
+    circuit = QuantumCircuit(5)
     # 遍历输入的每个元素
     for item in input_list:
         # 如果当前元素的第一个元素是整数
@@ -105,12 +115,12 @@ def split_list(input_list):
             if current_sequence and isinstance(current_sequence[0][0], str):
                 # 将当前子序列添加到字符对列表中
                 print("连续单门:", current_sequence)  # 输出当前字符序列
-                single_gate_qasm = generate_single_gate_circuit(current_sequence)
-                print(single_gate_qasm)
                 ##############################################################
                 # 这地方根据初始映射方式，更新single_gate_qasm  {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
-                # 16qubits {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 9, 9: 8, 10: 10, 11: 11, 12: 14, 13: 1 3, 14: 12, 15: 15}
-                ##############################################################
+                current_sequence = update_gate_list(current_sequence, {0: 0, 1: 4, 2: 3, 3: 1, 4: 2})
+                single_gate_qasm = generate_single_gate_circuit(current_sequence).qasm()
+                print(single_gate_qasm)
+                circuit = circuit.compose(generate_single_gate_circuit(current_sequence))
                 # 重置当前子序列
                 current_sequence = []
             # 将当前元素添加到当前子序列中
@@ -120,16 +130,16 @@ def split_list(input_list):
             if current_sequence and isinstance(current_sequence[0][0], int):
                 # 将当前子序列添加到数字对列表中
                 print("连续CNOT门:", current_sequence)  # 输出当前数字序列
-                cnot_qasm = generate_cnot_circuit(current_sequence)
+                cnot_qasm = generate_cnot_circuit(current_sequence).qasm()
                 # print(cnot_qasm)
                 # 将qasm存入本地地址qasm_address
                 write_qasm_to_address(qasm_address, cnot_qasm)
                 ##############################################################
                 # 这地方对cnot_qasm做综合
-                # cnot_circuits = eli_of_ibmq_quatio(qasm_address)  # 5qubits
-                cnot_circuits = eli_of_ibmq_guadalupe(qasm_address)  # 16qubits
+                cnot_circuits = eli_of_ibmq_quatio(qasm_address)
                 print("------------------------当前CNOT子线路综合结果如下------------------------")
                 print(cnot_circuits)
+                circuit = circuit.compose(cnot_circuits)
                 ##############################################################
                 # 重置当前子序列
                 current_sequence = []
@@ -140,41 +150,40 @@ def split_list(input_list):
     if current_sequence:
         if isinstance(current_sequence[0][0], int):
             print("连续CNOT门:", current_sequence)  # 输出当前数字序列
-            cnot_qasm = generate_cnot_circuit(current_sequence)
+            cnot_qasm = generate_cnot_circuit(current_sequence).qasm()
             print(cnot_qasm)
             ##############################################################
             # 这地方对cnot_qasm做综合
-            # cnot_circuits = eli_of_ibmq_quatio(qasm_address)  # 5qubits
-            cnot_circuits = eli_of_ibmq_guadalupe(qasm_address)  # 16qubits
+            cnot_circuits = eli_of_ibmq_quatio(qasm_address)
             print("------------------------当前CNOT子线路综合结果如下------------------------")
             print(cnot_circuits)
+            circuit = circuit.compose(cnot_circuits)
             ##############################################################
         else:
             print("连续单门:", current_sequence)  # 输出当前字符序列
-            single_gate_qasm = generate_single_gate_circuit(current_sequence)
-            print(single_gate_qasm)
-            ##############################################################
             # 这地方根据初始映射方式，更新single_gate_qasm  {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
-            # 16qubits {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 9, 9: 8, 10: 10, 11: 11, 12: 14, 13: 1 3, 14: 12, 15: 15}
-            ##############################################################
-
+            current_sequence = update_gate_list(current_sequence, {0: 0, 1: 4, 2: 3, 3: 1, 4: 2})
+            single_gate_qasm = generate_single_gate_circuit(current_sequence).qasm()
+            print(single_gate_qasm)
+            circuit = circuit.compose(generate_single_gate_circuit(current_sequence))
+    return circuit
 
 # 生成cnot子线路
 def generate_cnot_circuit(number_sequences):
     # 初始化量子电路，假设5个量子比特
-    num_qubits = 16
+    num_qubits = 5
     qc = QuantumCircuit(num_qubits)
     # 遍历数字序列并添加量子门
     for gate in number_sequences:
         qc.cx(gate[0], gate[1])
-    print(qc)
-    return qc.qasm()
+    # print(qc)
+    return qc
 
 
 # 生成单量子门子线路
 def generate_single_gate_circuit(char_sequences):
     # 初始化量子电路，假设5个量子比特
-    num_qubits = 16
+    num_qubits = 5
     qc = QuantumCircuit(num_qubits)
     # 遍历数字序列并添加量子门
     for gate in char_sequences:
@@ -189,8 +198,7 @@ def generate_single_gate_circuit(char_sequences):
             qc.t(target)
         elif control == 'tdg':
             qc.tdg(target)
-    print(qc)
-    return qc.qasm
+    return qc
 
 
 # 将QASM代码写入文件
@@ -198,13 +206,22 @@ def write_qasm_to_address(qasm_address, qc_qasm):
     with open(qasm_address, 'w') as f:
         f.write(qc_qasm)
 
+# 根据初始映射修改门列表
+def update_gate_list(gate_list, mapping):
+    updated_list = []
+    for gate in gate_list:
+        updated_gate = [gate[0], mapping[gate[1]]]
+        updated_list.append(updated_gate)
+    return updated_list
 
 if __name__ == '__main__':
     # circuit = QuantumCircuit(5)
 
-    # input_filename = 'circuits/benchmark/5qubits/initial_qasm/4gt5_75.qasm'
-    input_filename = 'circuits/benchmark/16/initial_qasm/dc2_222.qasm'
+    input_filename = f"./circuits/benchmark/5qubits/initial_qasm/4gt5_75.qasm"
     gate_list = converter_circ_from_qasm(input_filename)[1]
     print(gate_list)
 
-    split_list(gate_list)
+    syn_circuit = split_list(gate_list)
+    print(syn_circuit)
+    print(syn_circuit.qasm())
+
