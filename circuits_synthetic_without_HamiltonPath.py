@@ -44,6 +44,7 @@ def get_circuits_to_matrix(file_name, **kwargs):
     print(f"初始门数: {len(circuit.gates)}")
     mat = circuit.matrix
     # print(type(mat))
+    print(mat)
     return mat
 
 
@@ -914,12 +915,6 @@ def col_row_eli_of_ibmq_lagos(file_name):
     print(f"所有CNOT门: {CNOT}")
     # 将 CNOT 根据映射转换
     map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4, 5: 5, 6: 6}
-    # map_dict = {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
-    # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4}
-    # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 4: 4}
-    # map_dict = {0: 2, 1: 4, 2: 3, 3: 1, 4: 0}
-    # map_dict = {0: 4, 1: 3, 2: 0, 3: 1, 4: 2}
-    # map_dict = {0: 4, 1: 3, 2: 2, 3: 1, 4: 0}
     new_CNOT = []
     for cnot in CNOT:
         control = map_dict.get(cnot[0])
@@ -1851,9 +1846,33 @@ def eli_of_ibmq_guadalupe(cnot_qasm):
         control = cnot_gate[0]
         target = cnot_gate[1]
         circuit.cx(control, target)
-    # circuit.measure_all()
-    # circuit.draw("mpl")
-    # print(circuit)
+    return circuit
+
+def eli_of_ibmq_lagos(cnot_qasm):
+    cnots = col_row_eli_of_ibmq_lagos(cnot_qasm)
+    circuit = QuantumCircuit(7)
+    for cnot_gate in cnots:
+        control = cnot_gate[0]
+        target = cnot_gate[1]
+        circuit.cx(control, target)
+    return circuit
+
+def eli_of_ibmq_almaden(cnot_qasm):
+    cnots = col_row_eli_of_ibmq_almaden(cnot_qasm)
+    circuit = QuantumCircuit(20)
+    for cnot_gate in cnots:
+        control = cnot_gate[0]
+        target = cnot_gate[1]
+        circuit.cx(control, target)
+    return circuit
+
+def eli_of_ibmq_tokyo(cnot_qasm):
+    cnots = col_row_eli_of_ibmq_tokyo(cnot_qasm)
+    circuit = QuantumCircuit(20)
+    for cnot_gate in cnots:
+        control = cnot_gate[0]
+        target = cnot_gate[1]
+        circuit.cx(control, target)
     return circuit
 
 
@@ -1941,12 +1960,14 @@ if __name__ == '__main__':
     # print("Execution Time:", execution_time, "seconds")
 
     # ---------------------------------------------------------------------------
-    cnots = col_row_eli_of_ibmquatio('circuits/benchmark/5qubits/qasm/4gt5_75.qasm')
-    circuit = QuantumCircuit(5)
-    for cnot_gate in cnots:
-        control = cnot_gate[0]
-        target = cnot_gate[1]
-        circuit.cx(control, target)
-    circuit.measure_all()
-    circuit.draw("mpl")
-    print(circuit)
+    # cnots = col_row_eli_of_ibmquatio('circuits/benchmark/5qubits/qasm/4gt5_75.qasm')
+    # circuit = QuantumCircuit(5)
+    # for cnot_gate in cnots:
+    #     control = cnot_gate[0]
+    #     target = cnot_gate[1]
+    #     circuit.cx(control, target)
+    # circuit.measure_all()
+    # circuit.draw("mpl")
+    # print(circuit)
+
+    get_circuits_to_matrix("circuits/benchmark/16/random/16_1000_100%.qasm")
