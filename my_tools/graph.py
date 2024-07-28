@@ -134,6 +134,25 @@ class IbmqLagos_new:
     def get_degree(self):
         return self.graph.degree()
 
+class IbmqMelbourne:
+    def __init__(self):
+        self.vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        self.edges = [(0, 1), (1, 2), (1, 13), (2, 3), (2, 12), (3, 4), (3, 11), (4, 5), (4, 10), (5, 6), (5, 9), (6, 8), (7, 8), (8, 9), (9, 10), (10, 11), (11, 12), (12, 13)]
+        self.pos = {0: [0, 0], 1: [2, 0], 2: [4, 0], 3: [6, 0], 4: [8, 0], 5: [10, 0], 6: [12, 0],
+                    13: [2, -2], 12: [4, -2], 11: [6, -2], 10: [8, -2], 9: [10, -2], 8: [12, -2], 7: [14, -2]}
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(self.vertex)
+        self.graph.add_edges_from(self.edges)
+
+    def get_graph(self):
+        return self.graph
+
+    def draw_graph(self):
+        draw_graph(self.graph, self.pos)
+
+    def get_degree(self):
+        return self.graph.degree()
+
 
 class IbmqGuadalupe:
     def __init__(self):
@@ -616,6 +635,12 @@ def test_IbmQuito_new():
     ibmq_quito.draw_graph()
 
 
+def test_IbmqMelbourne():
+    ibmq_melbourne = IbmqMelbourne()
+    ibmq_melbourne.draw_graph()
+
+
+
 if __name__ == '__main__':
     # test_st1()
     # test_Xiaohong66()
@@ -624,9 +649,11 @@ if __name__ == '__main__':
     # test_IbmqManhattan()
     # test_IbmqLagos()
     # test_IbmqLagos_new()
-    test_IbmqAlmaden()
-    test_IbmqTokyo()
-    test_WuKong()
+    # test_IbmqAlmaden()
+    # test_IbmqTokyo()
+    # test_WuKong()
     # test_WuKong_new()
 
     # test_IbmQuito_new()
+
+    test_IbmqMelbourne()

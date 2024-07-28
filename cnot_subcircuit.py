@@ -1,7 +1,7 @@
 from qiskit import QuantumCircuit
 import re
 
-from circuits_synthetic_without_HamiltonPath import eli_of_ibmq_quatio, eli_of_ibmq_guadalupe, eli_of_ibmq_almaden, eli_of_ibmq_tokyo, eli_of_ibmq_lagos
+from circuits_synthetic_without_HamiltonPath import eli_of_ibmq_quatio, eli_of_ibmq_guadalupe, eli_of_ibmq_almaden, eli_of_ibmq_tokyo, eli_of_ibmq_lagos, eli_of_ibmq_melbourne
 
 # 存储qasm文件的地址 文件名cnot_subcircuit.qasm
 qasm_address = './cnot_subcircuit.qasm'
@@ -113,6 +113,7 @@ def split_list(input_list):
                 # 7qubits {0: 0, 1: 2, 2: 1, 3: 3, 4: 4, 5: 5, 6: 6}
                 # 20qubits almaden {0: 0, 1: 1, 2: 2, 3: 4, 4: 3, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 14, 14: 13, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19}
                 # 20qubits tokyo {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 9, 6: 8, 7: 7, 8: 6, 9: 5, 10: 10, 11: 11, 12: 12, 13: 13, 14: 18, 15: 14, 16: 15, 17: 16, 18: 17, 19: 19}
+                # 14qubits melbourne {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13}
                 ##############################################################
                 # 重置当前子序列
                 current_sequence = []
@@ -132,8 +133,9 @@ def split_list(input_list):
                 # cnot_circuits = eli_of_ibmq_quatio(qasm_address)  # 5qubits
                 # cnot_circuits = eli_of_ibmq_guadalupe(qasm_address)  # 16qubits
                 # cnot_circuits = eli_of_ibmq_lagos(qasm_address)  # 7qubits
-                cnot_circuits = eli_of_ibmq_almaden(qasm_address)  # 20qubits almaden
+                # cnot_circuits = eli_of_ibmq_almaden(qasm_address)  # 20qubits almaden
                 # cnot_circuits = eli_of_ibmq_tokyo(qasm_address)  # 20qubits tokyo
+                cnot_circuits = eli_of_ibmq_melbourne(qasm_address)  # 14qubits melbourne
 
                 print("------------------------当前CNOT子线路综合结果如下------------------------")
                 print(cnot_circuits)
@@ -154,8 +156,9 @@ def split_list(input_list):
             # cnot_circuits = eli_of_ibmq_quatio(qasm_address)  # 5qubits
             # cnot_circuits = eli_of_ibmq_guadalupe(qasm_address)  # 16qubits
             # cnot_circuits = eli_of_ibmq_lagos(qasm_address)  # 7qubits
-            cnot_circuits = eli_of_ibmq_almaden(qasm_address)  # 20qubits almaden
+            # cnot_circuits = eli_of_ibmq_almaden(qasm_address)  # 20qubits almaden
             # cnot_circuits = eli_of_ibmq_tokyo(qasm_address)  # 20qubits tokyo
+            cnot_circuits = eli_of_ibmq_melbourne(qasm_address)  # 14qubits melbourne
 
             print("------------------------当前CNOT子线路综合结果如下------------------------")
             print(cnot_circuits)
@@ -170,13 +173,14 @@ def split_list(input_list):
             # 7qubits {0: 0, 1: 2, 2: 1, 3: 3, 4: 4, 5: 5, 6: 6}
             # 20qubits almaden {0: 0, 1: 1, 2: 2, 3: 4, 4: 3, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 14, 14: 13, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19}
             # 20qubits tokyo {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 9, 6: 8, 7: 7, 8: 6, 9: 5, 10: 10, 11: 11, 12: 12, 13: 13, 14: 18, 15: 14, 16: 15, 17: 16, 18: 17, 19: 19}
+            # 14qubits melbourne {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13}
             ##############################################################
 
 
 # 生成cnot子线路
 def generate_cnot_circuit(number_sequences):
     # 初始化量子电路，假设5个量子比特
-    num_qubits = 20
+    num_qubits = 14
     qc = QuantumCircuit(num_qubits)
     # 遍历数字序列并添加量子门
     for gate in number_sequences:
@@ -188,7 +192,7 @@ def generate_cnot_circuit(number_sequences):
 # 生成单量子门子线路
 def generate_single_gate_circuit(char_sequences):
     # 初始化量子电路，假设5个量子比特
-    num_qubits = 20
+    num_qubits = 14
     qc = QuantumCircuit(num_qubits)
     # 遍历数字序列并添加量子门
     for gate in char_sequences:
@@ -219,7 +223,8 @@ if __name__ == '__main__':
     # input_filename = 'circuits/benchmark/5qubits/initial_qasm/4gt5_75.qasm'
     # input_filename = 'circuits/benchmark/16/initial_qasm/dc2_222.qasm'
     # input_filename = 'circuits/benchmark/7qubits/random_7/7_1000_10%.qasm'
-    input_filename = 'circuits/benchmark/20_qubit_circuit_include_single_gate/random/20_1000_10%.qasm'
+    # input_filename = 'circuits/benchmark/20_qubit_circuit_include_single_gate/random/20_1000_10%.qasm'
+    input_filename = 'circuits/benchmark/14_qubit_circuit_include_single_gate/random/14_1000_10%.qasm'
     gate_list = converter_circ_from_qasm(input_filename)[1]
     print(gate_list)
 
