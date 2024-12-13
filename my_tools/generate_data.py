@@ -119,10 +119,10 @@ if __name__ == '__main__':
 #         dict[i] = [2*i, 0]
 #     print(dict)
 #     for i in range(11):
-#         dict[i+13] = [2*i, -4]
+#         dict[i+13] = [2*i, -3]
 #     print(dict)
 #     for i in range(11):
-#         dict[i+27] = [2*i, -8]
+#         dict[i+27] = [2*i, -5]
 #     print(dict)
 #     for i in range(11):
 #         dict[i+41] = [2*i, -12]
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     #     dict[i+5] = [2*i, -2]
     # print(dict)
     # for i in range(5):
-    #     dict[i+10] = [2*i, -4]
+    #     dict[i+10] = [2*i, -3]
     # print(dict)
     # for i in range(5):
     #     dict[i+15] = [2*i, -6]

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-5 -*-
 
 """
     @Author kungfu
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     set_child_values(tree, 2, 1, 9, 8)  # 假设我们要设置第2层，第1个节点的左右孩子值分别为9和8
     print_tree(tree)
     # set_child_values(tree,0,1,1,2)
-    # set_child_values(tree,1,2,4,7)
-    # set_child_values(tree,2,3,11,8)
+    # set_child_values(tree,1,2,3,7)
+    # set_child_values(tree,2,3,11,5)
     # print_tree(tree)
 

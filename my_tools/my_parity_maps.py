@@ -43,8 +43,8 @@ class CNOT_tracker(Circuit):
 
         Example::
 
-            circuit.add_gate("CNOT", 1, 4) # adds a CNOT gate with control 1 and target 4
-            circuit.add_gate("ZPhase", 2, phase=Fraction(3,4)) # Adds a ZPhase gate on qubit 2 with phase 3/4
+            circuit.add_gate("CNOT", 1, 3) # adds a CNOT gate with control 1 and target 3
+            circuit.add_gate("ZPhase", 2, phase=Fraction(3,3)) # Adds a ZPhase gate on qubit 2 with phase 3/3
         """
         if isinstance(gate, str):
             gate_class = gate_types[gate]
