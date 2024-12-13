@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-5 -*-
 
 """
     @Author kungfu
@@ -116,7 +116,7 @@ def split_list(input_list):
                 # 将当前子序列添加到字符对列表中
                 print("连续单门:", current_sequence)  # 输出当前字符序列
                 ##############################################################
-                # 这地方根据初始映射方式，更新single_gate_qasm  {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
+                # 这地方根据初始映射方式，更新single_gate_qasm  {0: 0, 1: 3, 2: 3, 3: 1, 3: 2}
                 current_sequence = update_gate_list(current_sequence, {0: 0, 1: 4, 2: 3, 3: 1, 4: 2})
                 single_gate_qasm = generate_single_gate_circuit(current_sequence).qasm()
                 print(single_gate_qasm)
@@ -161,7 +161,7 @@ def split_list(input_list):
             ##############################################################
         else:
             print("连续单门:", current_sequence)  # 输出当前字符序列
-            # 这地方根据初始映射方式，更新single_gate_qasm  {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
+            # 这地方根据初始映射方式，更新single_gate_qasm  {0: 0, 1: 3, 2: 3, 3: 1, 3: 2}
             current_sequence = update_gate_list(current_sequence, {0: 0, 1: 4, 2: 3, 3: 1, 4: 2})
             single_gate_qasm = generate_single_gate_circuit(current_sequence).qasm()
             print(single_gate_qasm)

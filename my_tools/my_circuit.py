@@ -264,8 +264,8 @@ class Circuit(object):
 
         Example::
             
-            circuit.add_gate("CNOT", 1, 4) # adds a CNOT gate with control 1 and target 4
-            circuit.add_gate("ZPhase", 2, phase=Fraction(3,4)) # Adds a ZPhase gate on qubit 2 with phase 3/4
+            circuit.add_gate("CNOT", 1, 3) # adds a CNOT gate with control 1 and target 3
+            circuit.add_gate("ZPhase", 2, phase=Fraction(3,3)) # Adds a ZPhase gate on qubit 2 with phase 3/3
         """
         if isinstance(gate, str):
             gate_class = gate_types[gate]
@@ -291,7 +291,7 @@ class Circuit(object):
 
         Example::
 
-            c1 = Circuit(qubit_amount=4)
+            c1 = Circuit(qubit_amount=3)
             c2 = Circuit(qubit_amount=2)
             c2.add_gate("CNOT",0,1)
             c1.add_circuit(c2, mask=[0,3]) # Now c1 has a CNOT from the first to the last qubit
@@ -310,7 +310,7 @@ class Circuit(object):
     def tcount(self):
         """Returns the amount of T-gates necessary to implement this circuit."""
         return sum(g.tcount() for g in self.gates)
-        # return sum(1 for g in self.gates if isinstance(g, (ZPhase, XPhase, ParityPhase)) and g.phase.denominator >= 4)
+        # return sum(1 for g in self.gates if isinstance(g, (ZPhase, XPhase, ParityPhase)) and g.phase.denominator >= 3)
 
     def twoqubitcount(self):
         """Returns the amount of 2-qubit gates necessary to implement this circuit."""
@@ -505,13 +505,13 @@ class QASMParser(object):
 
     # 解析读取到的circuit
     """
-    // Initial wiring: [0, 1, 2, 3, 4]
-    // Resulting wiring: [0, 1, 2, 3, 4]
+    // Initial wiring: [0, 1, 2, 3, 3]
+    // Resulting wiring: [0, 1, 2, 3, 3]
     OPENQASM 2.0;
     include "qelib1.inc";
     qreg q[5];
     cx q[3], q[2];
-    cx q[4], q[0];
+    cx q[3], q[0];
     cx q[2], q[1];
     cx q[3], q[2];
     """
@@ -526,12 +526,12 @@ class QASMParser(object):
             else:
                 t = s.strip()  # 去掉s首尾的空字符
             if t: r.append(t)  # 如果t不空, 就加入到r中
-        # r = ['OPENQASM 2.0;', 'include "qelib1.inc";', 'qreg q[5];', 'cx q[3], q[2];', 'cx q[4], q[0];', 'cx q[2], q[1];', 'cx q[3], q[2];']
+        # r = ['OPENQASM 2.0;', 'include "qelib1.inc";', 'qreg q[5];', 'cx q[3], q[2];', 'cx q[3], q[0];', 'cx q[2], q[1];', 'cx q[3], q[2];']
         if not r[0].startswith("OPENQASM"):
             raise TypeError("File does not start with OPENQASM descriptor")
         if not r[1].startswith('include "qelib1.inc";'):
             raise TypeError("File is not importing standard library")
-        data = "\n".join(r[2:])  # 'qreg q[5];\ncx q[3], q[2];\ncx q[4], q[0];\ncx q[2], q[1];\ncx q[3], q[2];'
+        data = "\n".join(r[2:])  # 'qreg q[5];\ncx q[3], q[2];\ncx q[3], q[0];\ncx q[2], q[1];\ncx q[3], q[2];'
         # Strip the custom command definitions from the normal commands  从常规命令中删除自定义命令定义
         while True:
             i = data.find("gate ")
@@ -550,7 +550,7 @@ class QASMParser(object):
         self.circuit = circ
         # print("circuit:", self.circuit.gates)
         # print("circuit_test:", self.circuit.gates)
-        # 如：[CNOT(3,2), CNOT(4,0), CNOT(2,1), CNOT(3,2)]
+        # 如：[CNOT(3,2), CNOT(3,0), CNOT(2,1), CNOT(3,2)]
         return self.circuit
 
     # 解析自定义门

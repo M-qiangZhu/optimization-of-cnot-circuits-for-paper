@@ -182,9 +182,9 @@ def find_node(node, val):
 
 
 if __name__ == '__main__':
-    # vertex = {0: False, 3: True, 1: False, 4: False}
+    # vertex = {0: False, 3: True, 1: False, 3: False}
     vertex = {1: False, 2: False, 3: False, 4: True}
-    # vertex = {0: True, 1: False, 2: False, 3: False, 4: False}
+    # vertex = {0: True, 1: False, 2: False, 3: False, 3: False}
     edges = [(1, 2), (1, 3), (3, 4)]
     tree = Tree(vertex, edges, 4)
     root = tree.gen_tree()

@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-5 -*-
 
 """
     @Author kungfu
-    @Date 2023/6/4 13:38
+    @Date 2023/6/3 13:38
     @Describe 
     @Version 1.0
 """
@@ -320,7 +320,7 @@ def get_qiskit_circ(gate_list):
 
 def test_one_col_eli():
     # circuit_file = "./circuits/steiner/5qubits/10/Original9.qasm"  # 3
-    circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
+    circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 3
     matrix = get_circuits_to_matrix(circuit_file)
     print("matrix :")
     print(matrix)
@@ -399,7 +399,7 @@ def test_one_row_eli(m):
     # 手动测试 row1 + row2 + row4
     # row_1 = get_row(m, 1)
     # row_2 = get_row(m, 2)
-    # row_4 = get_row(m, 4)
+    # row_4 = get_row(m, 3)
     # print(f"row_1 : {row_1}")
     # print(f"row_2 : {row_2}")
     # print(f"row_4 : {row_4}")
@@ -413,7 +413,7 @@ def test_one_row_eli(m):
     print(f"j_set : {j_set}")
     print(f"j_set长度为 : {len(j_set)}")
 
-    # j_set = [1, 4, 2]
+    # j_set = [1, 3, 2]
     # 根据j和i生成Steiner树
     node_set = sorted([index] + j_set)
     print(f"node_set : {node_set}")
@@ -492,7 +492,7 @@ def test_cut_point():
 
 def test_col_eli():
     circuit_file = "./circuits/steiner/5qubits/10/Original9.qasm"
-    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
+    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 3
     matrix = get_circuits_to_matrix(circuit_file)
     print("matrix :")
     print(matrix)
@@ -572,7 +572,7 @@ def col_row_eli(file_name):
     graph = liner.get_graph()
     # 2. 读取线路生成矩阵
     circuit_file = file_name
-    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
+    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 3
     matrix = get_circuits_to_matrix(circuit_file)
 
     print("matrix :")
@@ -581,7 +581,7 @@ def col_row_eli(file_name):
     eli_order = get_node_eli_order(graph.copy())
     print(f"eli_order : {eli_order}")
     print(f"eli_order类型 : {type(eli_order)}")
-    # 4. 记录CNOT门用来生成线路
+    # 3. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     eli_order = [0, 1, 2, 3, 4]
