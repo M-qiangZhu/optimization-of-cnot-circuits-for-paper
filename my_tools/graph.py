@@ -183,7 +183,41 @@ class IbmqTokyo(GraphBase):
         super().__init__(vertex, edges, pos)
 
 
+class IbmqTokyo_update(GraphBase):
+    def __init__(self):
+        vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        edges = [(0, 1), (1, 2), (2, 3), (3, 4),
+                 (0, 9), (2, 7), (4, 5),
+                 (9, 8), (8, 7), (7, 6), (6, 5),
+                 (9, 10), (6, 17),
+                 (19, 18), (18, 17),
+                 (10, 11), (19, 12), (17, 16), (15, 14), (15, 16),
+                 (11, 12), (12, 13), (13, 14), ]
+        pos = {0: [0, 0], 1: [2, 0], 2: [4, 0], 3: [6, 0], 4: [8, 0],
+               9: [0, -2], 8: [2, -2], 7: [4, -2], 6: [6, -2], 5: [8, -2],
+               10: [0, -4], 19: [2, -4], 18: [4, -4], 17: [6, -4], 15: [8, -4],
+               11: [0, -6], 12: [2, -6], 13: [4, -6], 14: [6, -6], 16: [8, -6]}
+        super().__init__(vertex, edges, pos)
+
+
 class IbmqTokyo_new(GraphBase):
+    def __init__(self):
+        vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        edges = [(0, 1), (1, 2), (2, 3), (3, 4),
+                 (0, 9), (1, 8), (2, 7), (3, 6), (3, 5), (4, 6), (4, 5),
+                 (9, 8), (8, 7), (7, 6), (6, 5),
+                 (9, 10), (9, 11), (8, 10), (8, 11), (7, 12), (7, 13), (6, 12), (6, 13),
+                 (10, 11), (11, 12), (12, 13), (13, 14), (5, 14),
+                 (10, 19), (11, 18), (11, 17), (12, 17), (12, 18), (13, 16), (13, 15), (14, 15), (14, 16),
+                 (19, 18), (18, 17), (17, 16), (16, 15)]
+        pos = {0: [0, 0], 1: [2, 0], 2: [4, 0], 3: [6, 0], 4: [8, 0],
+               9: [0, -2], 8: [2, -2], 7: [4, -2], 6: [6, -2], 5: [8, -2],
+               10: [0, -4], 11: [2, -4], 12: [4, -4], 13: [6, -4], 14: [8, -4],
+               19: [0, -6], 18: [2, -6], 17: [4, -6], 16: [6, -6], 15: [8, -6]}
+        super().__init__(vertex, edges, pos)
+
+
+class IbmqTokyo_special(GraphBase):
     def __init__(self):
         vertex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
         edges = [(0, 1), (1, 2), (2, 3), (3, 4),
@@ -492,6 +526,11 @@ def test_IbmqTokyo_new():
     ibmqTokyo = IbmqTokyo_new()
     ibmqTokyo.draw_graph()
 
+def test_IbmqTokyo_update():
+    ibmqTokyo = IbmqTokyo_update()
+    ibmqTokyo.draw_graph()
+
+
 
 def test_WuKong():
     wukong = WuKong_new()
@@ -549,6 +588,7 @@ if __name__ == '__main__':
     # test_IbmqAlmaden()
     # test_IbmqTokyo()
     # test_IbmqTokyo_new()
+    test_IbmqTokyo_update()
     # test_WuKong()
     # test_WuKong_new()
     # test_IbmQuito()
@@ -558,4 +598,4 @@ if __name__ == '__main__':
     # test_IbmqQx5()
     # test_Square9Q()
     # test_Square16Q()
-    test_Rigetti16qAspen()
+    # test_Rigetti16qAspen()

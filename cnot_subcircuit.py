@@ -1,7 +1,7 @@
 from qiskit import QuantumCircuit
 import re
 
-from circuits_synthetic_without_HamiltonPath import eli_of_ibmq_quatio, eli_of_ibmq_guadalupe, eli_of_ibmq_almaden, eli_of_ibmq_tokyo, eli_of_ibmq_lagos, eli_of_ibmq_melbourne
+from circuits_synthetic_without_HamiltonPath_backup import eli_of_ibmq_quatio, eli_of_ibmq_guadalupe, eli_of_ibmq_almaden, eli_of_ibmq_tokyo, eli_of_ibmq_lagos, eli_of_ibmq_melbourne
 
 # 存储qasm文件的地址 文件名cnot_subcircuit.qasm
 qasm_address = './cnot_subcircuit.qasm'

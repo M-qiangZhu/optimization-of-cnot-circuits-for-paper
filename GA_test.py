@@ -1,7 +1,7 @@
 import time
 
 import numpy as np
-from circuits_synthetic_without_HamiltonPath import get_row, row_add, get_circuits_to_matrix, get_ei
+from circuits_synthetic_without_HamiltonPath_backup import get_row, row_add, get_circuits_to_matrix, get_ei
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from concurrent.futures import ProcessPoolExecutor, as_completed
 

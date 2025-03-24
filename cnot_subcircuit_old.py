@@ -1,7 +1,7 @@
 from qiskit import QuantumCircuit
 import re
 
-from circuits_synthetic_without_HamiltonPath import eli_of_ibmq_quatio
+from circuits_synthetic_without_HamiltonPath_backup import eli_of_ibmq_quatio
 
 
 def get_data(str):

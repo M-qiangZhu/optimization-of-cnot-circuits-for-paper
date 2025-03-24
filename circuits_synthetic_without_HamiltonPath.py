@@ -6,13 +6,14 @@ from matplotlib import pyplot as plt
 
 from qiskit import QuantumCircuit, IBMQ
 from qiskit import Aer, transpile
-from qiskit.providers.ibmq.runtime import IBMRuntimeService
 from qiskit.visualization import plot_histogram
 # from qiskit.test.mock import FakeYorktown
 from qiskit.providers.fake_provider import FakeYorktown
 
-from my_tools.graph import IbmQuito, IbmqGuadalupe, IbmqGuadalupe_new, IbmqKolkata_new, IbmqManhattan_new, IbmqLagos_new, IbmqAlmaden_new, IbmqTokyo_new, WuKong, WuKong_new, \
-    IbmQuito_new, IbmqMelbourne, IbmqQx5, Square9Q, Square16Q, Rigetti16qAspen
+
+from my_tools.graph import IbmQuito, IbmqGuadalupe, IbmqGuadalupe_new, IbmqKolkata_new, IbmqManhattan_new, \
+    IbmqLagos_new, IbmqAlmaden_new, IbmqTokyo_new, WuKong, WuKong_new, \
+    IbmQuito_new, Rigetti16qAspen, Rigetti16qAspen_old, Square9Q, IbmqQx5, IbmqTokyo
 from my_tools.my_parity_maps import CNOT_tracker
 from networkx.algorithms import approximation
 from my_tools.my_linalg import Mat2
@@ -44,7 +45,6 @@ def get_circuits_to_matrix(file_name, **kwargs):
     print(f"初始门数: {len(circuit.gates)}")
     mat = circuit.matrix
     # print(type(mat))
-    print(mat)
     return mat
 
 
@@ -167,33 +167,6 @@ def col_eli_set_steiner_point(m, node, col, cnot_list):
     return m, cnot_list
 
 
-# def col_eli_set_steiner_point_in_multi_node(m, node, col, cnot_list):
-#     """
-#     列消元第一步: Steiner点置1（支持多叉树）
-#     :param m:
-#     :param node:
-#     :param col:
-#     :param cnot_list:
-#     :return:
-#     """
-#     if node is None:
-#         return m, cnot_list
-#
-#     # 递归遍历所有子节点
-#     for child in node.children:
-#         m, cnot_list = col_eli_set_steiner_point(m, child, col, cnot_list)
-#
-#     # 获取当前列对应当前索引处的值
-#     if node.parent is not None:
-#         j = node.val
-#         k = node.parent.val
-#         if col[j] == 1 and col[k] == 0:
-#             m.row_add(j, k)
-#             cnot_list.append((j, k))
-#
-#     return m, cnot_list
-
-
 def col_eli_down_elim(m, node, cnot_list):
     """
     列消元第二步, 向下消元
@@ -206,10 +179,8 @@ def col_eli_down_elim(m, node, cnot_list):
         return
     if node.left_child is not None:
         m, cnot_list = col_eli_down_elim(m, node.left_child, cnot_list)
-        print(f"左子树cnot_list: {cnot_list}")
     if node.right_child is not None:
         m, cnot_list = col_eli_down_elim(m, node.right_child, cnot_list)
-        print(f"右子树cnot_list: {cnot_list}")
     # 将当前节点对应行, 加到孩子节点对应行上
     parent = node.val
     if node.left_child is not None:
@@ -223,31 +194,6 @@ def col_eli_down_elim(m, node, cnot_list):
     return m, cnot_list
 
 
-# def col_eli_down_elim_in_multi_node(m, node, cnot_list):
-#     """
-#     列消元第二步, 向下消元 (支持多叉树)
-#     :param m:
-#     :param node:
-#     :param cnot_list:
-#     :return:
-#     """
-#     if node is None:
-#         return m, cnot_list
-#
-#     # 递归遍历所有子节点
-#     for child in node.children:
-#         m, cnot_list = col_eli_down_elim_in_multi_node(m, child, cnot_list)
-#
-#     # 将当前节点对应行, 加到孩子节点对应行上
-#     parent = node.val
-#     for child in node.children:
-#         child_val = child.val
-#         m.row_add(parent, child_val)
-#         cnot_list.append((parent, child_val))
-#
-#     return m, cnot_list
-
-
 def col_elim(m, start_node, col, cnot_list):
     step1_m, step1_cnots = col_eli_set_steiner_point(m, start_node, col, cnot_list)
     print("列消除step1_m :")
@@ -256,16 +202,6 @@ def col_elim(m, start_node, col, cnot_list):
     result_m, cnot = col_eli_down_elim(m, start_node, cnot_list)
     # tmp_cnot += cnot
     return result_m, cnot
-
-
-# def col_elim(m, start_node, col, cnot_list):
-#     step1_m, step1_cnots = col_eli_set_steiner_point_in_multi_node(m, start_node, col, cnot_list)
-#     print("列消除step1_m :")
-#     print(step1_m)
-#     print(f"列消除step1_cnots : {step1_cnots}")
-#     result_m, cnot = col_eli_down_elim_in_multi_node(m, start_node, cnot_list)
-#     # tmp_cnot += cnot
-#     return result_m, cnot
 
 
 def get_ei(m, i):
@@ -303,6 +239,7 @@ def find_set_j(m, tar_row_index, row_tar, ei):
             row_add(row, tmp_row)
         if tmp_row == row_tar:
             return list(j_set)
+
 
 
 class TreeNode:
@@ -376,7 +313,7 @@ def find_set_j_new(m, tar_row_index, row_tar, ei):
     result = dfs_search(root, target)
     print(result)
     # 3. 判断当前层,当前列和已选择路径上的列是否满足 Ri + ei 对应列的值
-    # 3. 如果满足, 找下一层
+    # 4. 如果满足, 找下一层
     # 5. 如果不满足, 剪枝,  返回上一层, 继续查找
 
     # 根据目标行, 生成待遍历的列表
@@ -489,7 +426,7 @@ def get_qiskit_circ(gate_list):
 
 def test_one_col_eli():
     # circuit_file = "./circuits/steiner/5qubits/10/Original9.qasm"  # 3
-    circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 3
+    circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
     matrix = get_circuits_to_matrix(circuit_file)
     print("matrix :")
     print(matrix)
@@ -568,7 +505,7 @@ def test_one_row_eli(m):
     # 手动测试 row1 + row2 + row4
     # row_1 = get_row(m, 1)
     # row_2 = get_row(m, 2)
-    # row_4 = get_row(m, 3)
+    # row_4 = get_row(m, 4)
     # print(f"row_1 : {row_1}")
     # print(f"row_2 : {row_2}")
     # print(f"row_4 : {row_4}")
@@ -582,7 +519,7 @@ def test_one_row_eli(m):
     print(f"j_set : {j_set}")
     print(f"j_set长度为 : {len(j_set)}")
 
-    # j_set = [1, 3, 2]
+    # j_set = [1, 4, 2]
     # 根据j和i生成Steiner树
     node_set = sorted([index] + j_set)
     print(f"node_set : {node_set}")
@@ -661,7 +598,7 @@ def test_cut_point():
 
 def test_col_eli():
     circuit_file = "./circuits/steiner/5qubits/10/Original9.qasm"
-    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 3
+    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
     matrix = get_circuits_to_matrix(circuit_file)
     print("matrix :")
     print(matrix)
@@ -735,56 +672,56 @@ def col_row_eli_of_ibmquatio(file_name):
     ibmq_quito = IbmQuito_new()
     graph = ibmq_quito.get_graph()
     # 2. 读取线路生成矩阵
-    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 3
+    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
     # circuit = CNOT_tracker.from_qasm_file(circuit_file)
     circuit_file = file_name
     matrix = get_circuits_to_matrix(circuit_file)
 
-    print("初始matrix :")
-    print(matrix)
+    # print("初始matrix :")
+    # print(matrix)
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
-    # 3. 记录CNOT门用来生成线路
+    # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
     order = [0, 4, 3, 1, 2]
-    # eli_order = [0, 3, 3, 1, 2]
+    # eli_order = [0, 4, 3, 1, 2]
     matrix = update_matrix(matrix, order)
-    print("更新后的matrix :")
-    print(matrix)
+    # print("更新后的matrix :")
+    # print(matrix)
     eli_order = [0, 1, 2, 3, 4]
-    # eli_order = [0, 3, 3, 1, 2]
+    # eli_order = [0, 4, 3, 1, 2]
     # 默认进行行列消元
     col_flag = True
     for index in eli_order:
         # 列消元
-        print(f"***********************************消除第{index}列和第{index}行**************************************")
+        # print(f"***********************************消除第{index}列和第{index}行**************************************")
         # 获取当前列数据
         col_list = get_col(matrix, index)
-        print(f"col_list{col_list}")
+        # print(f"col_list{col_list}")
         # 获取当前列中为1的顶点
         col_ones = get_ones_index_col(index, col_list)
-        print(f"col_ones : {col_ones}")
+        # print(f"col_ones : {col_ones}")
         # 如果对角线元素为0, 需要单独处理
         if col_list[index] == 0:
             # 用来生成Steiner树的顶点
             # col_ones.append(int(col_list[index]))
             v_st = col_ones + [index]
             v_st = sorted(v_st)
-            print(f"对角线元素为 0 时 v_st : {v_st}")
+            # print(f"对角线元素为 0 时 v_st : {v_st}")
         else:
             v_st = col_ones
-            print(f"对角线元素不为 0 时 v_st : {v_st}")
+            # print(f"对角线元素不为 0 时 v_st : {v_st}")
         # --------------------------------------------------------------------
         # 根据值为 1 的顶点集合, 生成Steiner树
         if len(v_st) > 1:
             tree_from_nx = approximation.steiner_tree(graph, v_st)
             # 获取Steiner树中的顶点
             tmp_v = tree_from_nx.nodes
-            print(f"tmp_v : {tmp_v}")
+            # print(f"tmp_v : {tmp_v}")
             if len(tmp_v) == 0:
-                print("只有根节点, 无需生成steiner树")
+                # print("只有根节点, 无需生成steiner树")
                 # 是否进行列消元
                 col_flag = False
             if col_flag:
@@ -792,60 +729,60 @@ def col_row_eli_of_ibmquatio(file_name):
                 vertex = confirm_steiner_point(col_ones, tmp_v)
                 # 获取用来生成树的边集合
                 edges = [e for e in tree_from_nx.edges]
-                print(f"vertex : {vertex}")
-                print(f"edges : {edges}")
+                # print(f"vertex : {vertex}")
+                # print(f"edges : {edges}")
                 # 指定根节点
                 root_node = index
-                print(f"根节点: {root_node}")
+                # print(f"根节点: {root_node}")
                 # 生成树
                 tree = Tree(vertex, edges, root_node)
                 root = tree.gen_tree()
-                print(f"当前根节点为 : {root.get_value()}")
+                # print(f"当前根节点为 : {root.get_value()}")
                 col = get_col(matrix, index)
                 CNOT_list = []
                 matrix, cnot = col_elim(matrix, root, col, CNOT_list)
                 CNOT += cnot
-                print(f"列消元后的矩阵 : ")
-                print(matrix)
-                print(f"列消元过程中使用的CNOT门: {cnot}")
-                print("-" * 60)
+                # print(f"列消元后的矩阵 : ")
+                # print(matrix)
+                # print(f"列消元过程中使用的CNOT门: {cnot}")
+                # print("-" * 60)
         # 行消元
         ei = get_ei(matrix, index)
-        print(f"ei : {ei}")
-        print(f"ei类型: {type(ei)}")
-        print(f"ei中数据的类型: {type(ei[0])}")
+        # print(f"ei : {ei}")
+        # print(f"ei类型: {type(ei)}")
+        # print(f"ei中数据的类型: {type(ei[0])}")
         # 获取当前被消除的行
         row_target = get_row(matrix, index)
         j_set = find_set_j(matrix, index + 1, row_target, ei)
-        print(f"j_set : {j_set}")
+        # print(f"j_set : {j_set}")
         # print(f"j_set长度为 : {len(j_set)}")
         if j_set is not None:
             # 根据j和i生成Steiner树
             node_set = sorted([index] + j_set)
-            print(f"node_set : {node_set}")
+            # print(f"node_set : {node_set}")
             tree_from_nx = approximation.steiner_tree(graph, node_set)
             # 获取Steiner树中的顶点
             tmp_v = tree_from_nx.nodes
-            print(f"tmp_v : {tmp_v}")
+            # print(f"tmp_v : {tmp_v}")
             # 获取用来生成树的顶点集合
             vertex = confirm_steiner_point(node_set, tmp_v)
             # 获取用来生成树的边集合
             edges = [e for e in tree_from_nx.edges]
-            print(f"vertex : {vertex}")
-            print(f"edges : {edges}")
+            # print(f"vertex : {vertex}")
+            # print(f"edges : {edges}")
             # 生成树
             tree = Tree(vertex, edges, index)
             root = tree.gen_tree()
-            print(f"root.get_value() : {root.get_value()}")
+            # print(f"root.get_value() : {root.get_value()}")
             # 记录CNOT门
             CNOT_list = []
             # 执行 行消元
             m, cnot = row_elim(matrix, root, CNOT_list)
             CNOT += cnot
-            print(f"行消元后的矩阵 : ")
-            print(m)
-            print(f"行消元过程中使用的CNOT门: {cnot}")
-            print("删除当前顶点")
+            # print(f"行消元后的矩阵 : ")
+            # print(m)
+            # print(f"行消元过程中使用的CNOT门: {cnot}")
+            # print("删除当前顶点")
         graph.remove_node(index)
         # 恢复 列消元标志位
         col_flag = True
@@ -873,12 +810,12 @@ def col_row_eli_of_ibmq_lagos(file_name):
     print(matrix)
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
-    # 3. 记录CNOT门用来生成线路
+    # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
     order = [0, 2, 1, 3, 4, 5, 6]
-    # eli_order = [0, 3, 3, 1, 2]
+    # eli_order = [0, 4, 3, 1, 2]
     update_matrix(matrix, order)
     print(matrix)
     eli_order = [0, 1, 2, 3, 4, 5, 6]
@@ -979,134 +916,12 @@ def col_row_eli_of_ibmq_lagos(file_name):
     print(f"所有CNOT门: {CNOT}")
     # 将 CNOT 根据映射转换
     map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4, 5: 5, 6: 6}
-    new_CNOT = []
-    for cnot in CNOT:
-        control = map_dict.get(cnot[0])
-        target = map_dict.get(cnot[1])
-        new_CNOT.append((control, target))
-    print(new_CNOT)
-    return new_CNOT
-
-
-def col_row_eli_of_ibmq_melbourne(file_name):
-    # 1. 获取 ibmq_quito 架构的图
-    ibmq_melbourne = IbmqMelbourne()
-    graph = ibmq_melbourne.get_graph()
-    # 2. 读取线路生成矩阵
-    circuit_file = file_name
-    matrix = get_circuits_to_matrix(circuit_file)
-    print("matrix :")
-    print(matrix)
-    # 3. 根据是否是割点, 生成消元序列
-    # eli_order = get_node_eli_order(graph.copy())
-
-    # print(f"eli_order : {eli_order}")
-    # print(f"eli_order类型 : {type(eli_order)}")
-    # 3. 记录CNOT门用来生成线路
-    CNOT = []
-    # 5. 进入循环
-    # for index in range(rank):
-    # matrix = update_matrix(matrix, order)
-    print(f"更新后的matrix:")
-    print(matrix)
-    eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-    # 默认进行行列消元
-    col_flag = True
-    for index in eli_order:
-        # 列消元
-        print(f"***********************************消除第{index}列和第{index}行**************************************")
-        # 获取当前列数据
-        col_list = get_col(matrix, index)
-        print(f"col_list{col_list}")
-        # 获取当前列中为1的顶点
-        col_ones = get_ones_index_col(index, col_list)
-        print(f"col_ones : {col_ones}")
-        # 如果对角线元素为0, 需要单独处理
-        if col_list[index] == 0:
-            # 用来生成Steiner树的顶点
-            # col_ones.append(int(col_list[index]))
-            v_st = col_ones + [index]
-            v_st = sorted(v_st)
-            print(f"对角线元素为 0 时 v_st : {v_st}")
-        else:
-            v_st = col_ones
-            print(f"对角线元素不为 0 时 v_st : {v_st}")
-        # --------------------------------------------------------------------
-        # 根据值为 1 的顶点集合, 生成Steiner树
-        if len(v_st) > 1:
-            tree_from_nx = approximation.steiner_tree(graph, v_st)
-            # 获取Steiner树中的顶点
-            tmp_v = tree_from_nx.nodes
-            print(f"tmp_v : {tmp_v}")
-            if len(tmp_v) == 0:
-                print("只有根节点, 无需生成steiner树")
-                # 是否进行列消元
-                col_flag = False
-            if col_flag:
-                # 获取用来生成树的顶点集合
-                vertex = confirm_steiner_point(col_ones, tmp_v)
-                # 获取用来生成树的边集合
-                edges = [e for e in tree_from_nx.edges]
-                print(f"vertex : {vertex}")
-                print(f"edges : {edges}")
-                # 指定根节点
-                root_node = index
-                print(f"根节点: {root_node}")
-                # 生成树
-                tree = Tree(vertex, edges, root_node)
-                root = tree.gen_tree()
-                print(f"当前根节点为 : {root.get_value()}")
-                col = get_col(matrix, index)
-                CNOT_list = []
-                matrix, cnot = col_elim(matrix, root, col, CNOT_list)
-                CNOT += cnot
-                print(f"列消元后的矩阵 : ")
-                print(matrix)
-                print(f"列消元过程中使用的CNOT门: {cnot}")
-                print("-" * 60)
-        # 行消元
-        ei = get_ei(matrix, index)
-        print(f"ei : {ei}")
-        print(f"ei类型: {type(ei)}")
-        print(f"ei中数据的类型: {type(ei[0])}")
-        # 获取当前被消除的行
-        row_target = get_row(matrix, index)
-        j_set = find_set_j(matrix, index + 1, row_target, ei)
-        print(f"j_set : {j_set}")
-        # print(f"j_set长度为 : {len(j_set)}")
-        if j_set is not None:
-            # 根据j和i生成Steiner树
-            node_set = sorted([index] + j_set)
-            print(f"node_set : {node_set}")
-            tree_from_nx = approximation.steiner_tree(graph, node_set)
-            # 获取Steiner树中的顶点
-            tmp_v = tree_from_nx.nodes
-            print(f"tmp_v : {tmp_v}")
-            # 获取用来生成树的顶点集合
-            vertex = confirm_steiner_point(node_set, tmp_v)
-            # 获取用来生成树的边集合
-            edges = [e for e in tree_from_nx.edges]
-            print(f"vertex : {vertex}")
-            print(f"edges : {edges}")
-            # 生成树
-            tree = Tree(vertex, edges, index)
-            root = tree.gen_tree()
-            print(f"root.get_value() : {root.get_value()}")
-            # 记录CNOT门
-            CNOT_list = []
-            # 执行 行消元
-            m, cnot = row_elim(matrix, root, CNOT_list)
-            CNOT += cnot
-            print(f"行消元后的矩阵 : ")
-            print(m)
-            print(f"行消元过程中使用的CNOT门: {cnot}")
-            print("删除当前顶点")
-        graph.remove_node(index)
-        # 恢复 列消元标志位
-        col_flag = True
-    print(f"所有CNOT门: {CNOT}")
-    # 将 CNOT 根据映射转换
-    map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13}
+    # map_dict = {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
+    # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4}
+    # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 4: 4}
+    # map_dict = {0: 2, 1: 4, 2: 3, 3: 1, 4: 0}
+    # map_dict = {0: 4, 1: 3, 2: 0, 3: 1, 4: 2}
+    # map_dict = {0: 4, 1: 3, 2: 2, 3: 1, 4: 0}
     new_CNOT = []
     for cnot in CNOT:
         control = map_dict.get(cnot[0])
@@ -1122,7 +937,7 @@ def col_row_eli_of_ibmq_guadalupe(file_name):
     graph = ibmq_guadalupe.get_graph()
     # 2. 读取线路生成矩阵
     circuit_file = file_name
-    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 3
+    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
     matrix = get_circuits_to_matrix(circuit_file)
     print("matrix :")
     print(matrix)
@@ -1131,14 +946,13 @@ def col_row_eli_of_ibmq_guadalupe(file_name):
 
     # print(f"eli_order : {eli_order}")
     # print(f"eli_order类型 : {type(eli_order)}")
-    # 3. 记录CNOT门用来生成线路
+    # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
     order = [0, 1, 2, 3, 4, 5, 6, 7, 9, 8, 10, 11, 14, 13, 12, 15]
-    # eli_order = [0, 3, 3, 1, 2]
-    matrix = update_matrix(matrix, order)
-    print(f"更新后的matrix:")
+    # eli_order = [0, 4, 3, 1, 2]
+    update_matrix(matrix, order)
     print(matrix)
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     # 默认进行行列消元
@@ -1238,6 +1052,12 @@ def col_row_eli_of_ibmq_guadalupe(file_name):
     print(f"所有CNOT门: {CNOT}")
     # 将 CNOT 根据映射转换
     map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 9, 9: 8, 10: 10, 11: 11, 12: 14, 13: 13, 14: 12, 15: 15}
+    # map_dict = {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
+    # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4}
+    # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 4: 4}
+    # map_dict = {0: 2, 1: 4, 2: 3, 3: 1, 4: 0}
+    # map_dict = {0: 4, 1: 3, 2: 0, 3: 1, 4: 2}
+    # map_dict = {0: 4, 1: 3, 2: 2, 3: 1, 4: 0}
     new_CNOT = []
     for cnot in CNOT:
         control = map_dict.get(cnot[0])
@@ -1258,12 +1078,12 @@ def col_row_eli_of_ibmq_almaden(file_name):
     print(matrix)
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
-    # 3. 记录CNOT门用来生成线路
+    # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
     order = [0, 1, 2, 4, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 13, 15, 16, 17, 18, 19]
-    # eli_order = [0, 3, 3, 1, 2]
+    # eli_order = [0, 4, 3, 1, 2]
     update_matrix(matrix, order)
     print(matrix)
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
@@ -1373,10 +1193,11 @@ def col_row_eli_of_ibmq_almaden(file_name):
     return new_CNOT
 
 
-def col_row_eli_of_ibmq_tokyo(file_name):
+def col_row_eli_of_ibmq_tokyo(file_name,order):
     # 1. 获取 ibmq_quito 架构的图
-    ibmq_tokyo = IbmqTokyo_new()
-    graph = ibmq_tokyo.get_graph()
+    # ibmq_tokyo = IbmqTokyo_new()
+    ibmq_tokyo = IbmqTokyo()
+    # graph = ibmq_tokyo.get_graph()
     # 2. 读取线路生成矩阵
     circuit_file = file_name
     matrix = get_circuits_to_matrix(circuit_file)
@@ -1384,15 +1205,17 @@ def col_row_eli_of_ibmq_tokyo(file_name):
     print(matrix)
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
-    # 3. 记录CNOT门用来生成线路
+    # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
-    order = [0, 1, 2, 3, 4, 9, 8, 7, 6, 5, 10, 11, 12, 13, 14, 19, 18, 17, 16, 15]
-    # eli_order = [0, 3, 3, 1, 2]
+    # order = [0, 1, 2, 3, 4, 9, 8, 7, 6, 5, 10, 11, 12, 14, 18, 14, 15, 16, 17, 19]
     update_matrix(matrix, order)
-    print("更新后的matrix :")
     print(matrix)
+
+    ibmq_tokyo.modify_edges(order)
+    graph = ibmq_tokyo.get_graph()
+
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
     # 默认进行行列消元
     col_flag = True
@@ -1488,18 +1311,26 @@ def col_row_eli_of_ibmq_tokyo(file_name):
         graph.remove_node(index)
         # 恢复 列消元标志位
         col_flag = True
-    print(f"所有CNOT门: {CNOT}")
-    # 将 CNOT 根据映射转换
-    map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 9, 6: 8, 7: 7, 8: 6, 9: 5, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 19, 16: 18, 17: 17, 18: 16, 19: 15}
-    new_CNOT = []
-    for cnot in CNOT:
-        control = map_dict.get(cnot[0])
-        target = map_dict.get(cnot[1])
-        new_CNOT.append((control, target))
-    print(new_CNOT)
-    return new_CNOT
+
+    if m * Mat2.id(20) == Mat2.id(20):
+
+        print(f"所有CNOT门: {CNOT}")
+
+        # 将 CNOT 根据映射转换
+        # map_dict = {0: 3, 1: 4, 2: 5, 3: 6, 4: 7, 5: 8, 6: 9, 7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15, 13: 0, 14: 1, 15: 2}
+        map_dict = {old: new for old, new in zip(range(20), order)}
+        new_CNOT = []
+        for cnot in CNOT:
+            control = map_dict.get(cnot[0])
+            target = map_dict.get(cnot[1])
+            new_CNOT.append((control, target))
+        print(new_CNOT)
+        return new_CNOT
+    else:
+        return 99999999999
 
 
+# 27
 def col_row_eli_of_ibmq_kolkata(file_name):
     # 1. 获取 ibmq_quito 架构的图
     ibmq_kolkata = IbmqKolkata_new()
@@ -1512,12 +1343,12 @@ def col_row_eli_of_ibmq_kolkata(file_name):
     print(type(matrix))
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
-    # 3. 记录CNOT门用来生成线路
+    # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
     order = [0, 1, 2, 3, 4, 5, 6, 7, 9, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 19, 21, 22, 23, 24, 25, 26]
-    # eli_order = [0, 3, 3, 1, 2]
+    # eli_order = [0, 4, 3, 1, 2]
     update_matrix(matrix, order)
     print(matrix)
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
@@ -1619,12 +1450,12 @@ def col_row_eli_of_ibmq_kolkata(file_name):
     # 将 CNOT 根据映射转换
     map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 9, 9: 8, 10: 10, 11: 11, 12: 12, 13: 13,
                 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 20, 20: 19, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26}
-    # map_dict = {0: 0, 1: 3, 2: 3, 3: 1, 3: 2}
-    # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 3: 3}
-    # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 3: 3}
-    # map_dict = {0: 2, 1: 3, 2: 3, 3: 1, 3: 0}
-    # map_dict = {0: 3, 1: 3, 2: 0, 3: 1, 3: 2}
-    # map_dict = {0: 3, 1: 3, 2: 2, 3: 1, 3: 0}
+    # map_dict = {0: 0, 1: 4, 2: 3, 3: 1, 4: 2}
+    # map_dict = {0: 0, 1: 2, 2: 1, 3: 3, 4: 4}
+    # map_dict = {0: 2, 1: 0, 2: 1, 3: 3, 4: 4}
+    # map_dict = {0: 2, 1: 4, 2: 3, 3: 1, 4: 0}
+    # map_dict = {0: 4, 1: 3, 2: 0, 3: 1, 4: 2}
+    # map_dict = {0: 4, 1: 3, 2: 2, 3: 1, 4: 0}
     new_CNOT = []
     for cnot in CNOT:
         control = map_dict.get(cnot[0])
@@ -1646,7 +1477,7 @@ def col_row_eli_of_ibmq_manhattan(file_name):
 
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
-    # 3. 记录CNOT门用来生成线路
+    # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
@@ -1776,7 +1607,7 @@ def col_row_eli_of_wukong(file_name):
     print(matrix)
     # 3. 根据是否是割点, 生成消元序列
     # eli_order = get_node_eli_order(graph.copy())
-    # 3. 记录CNOT门用来生成线路
+    # 4. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
     # for index in range(rank):
@@ -1890,138 +1721,12 @@ def col_row_eli_of_wukong(file_name):
     return new_CNOT
 
 
-def col_row_eli_of_ibmq_qx5(file_name):
-    # 1. 获取 ibmq_quito 架构的图
-    ibmq_qx5 = IbmqQx5()
-    graph = ibmq_qx5.get_graph()
-    # 2. 读取线路生成矩阵
-    circuit_file = file_name
-    matrix = get_circuits_to_matrix(circuit_file)
-    print("matrix :")
-    print(matrix)
-    # 3. 根据是否是割点, 生成消元序列
-    # eli_order = get_node_eli_order(graph.copy())
-
-    # print(f"eli_order : {eli_order}")
-    # print(f"eli_order类型 : {type(eli_order)}")
-    # 3. 记录CNOT门用来生成线路
-    CNOT = []
-    # 5. 进入循环
-    # for index in range(rank):
-    # matrix = update_matrix(matrix, order)
-    print(f"更新后的matrix:")
-    print(matrix)
-    eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-    # 默认进行行列消元
-    col_flag = True
-    for index in eli_order:
-        # 列消元
-        print(f"***********************************消除第{index}列和第{index}行**************************************")
-        # 获取当前列数据
-        col_list = get_col(matrix, index)
-        print(f"col_list{col_list}")
-        # 获取当前列中为1的顶点
-        col_ones = get_ones_index_col(index, col_list)
-        print(f"col_ones : {col_ones}")
-        # 如果对角线元素为0, 需要单独处理
-        if col_list[index] == 0:
-            # 用来生成Steiner树的顶点
-            # col_ones.append(int(col_list[index]))
-            v_st = col_ones + [index]
-            v_st = sorted(v_st)
-            print(f"对角线元素为 0 时 v_st : {v_st}")
-        else:
-            v_st = col_ones
-            print(f"对角线元素不为 0 时 v_st : {v_st}")
-        # --------------------------------------------------------------------
-        # 根据值为 1 的顶点集合, 生成Steiner树
-        if len(v_st) > 1:
-            tree_from_nx = approximation.steiner_tree(graph, v_st)
-            # 获取Steiner树中的顶点
-            tmp_v = tree_from_nx.nodes
-            print(f"tmp_v : {tmp_v}")
-            if len(tmp_v) == 0:
-                print("只有根节点, 无需生成steiner树")
-                # 是否进行列消元
-                col_flag = False
-            if col_flag:
-                # 获取用来生成树的顶点集合
-                vertex = confirm_steiner_point(col_ones, tmp_v)
-                # 获取用来生成树的边集合
-                edges = [e for e in tree_from_nx.edges]
-                print(f"vertex : {vertex}")
-                print(f"edges : {edges}")
-                # 指定根节点
-                root_node = index
-                print(f"根节点: {root_node}")
-                # 生成树
-                tree = Tree(vertex, edges, root_node)
-                root = tree.gen_tree()
-                print(f"当前根节点为 : {root.get_value()}")
-                col = get_col(matrix, index)
-                CNOT_list = []
-                matrix, cnot = col_elim(matrix, root, col, CNOT_list)
-                CNOT += cnot
-                print(f"列消元后的矩阵 : ")
-                print(matrix)
-                print(f"列消元过程中使用的CNOT门: {cnot}")
-                print("-" * 60)
-        # 行消元
-        ei = get_ei(matrix, index)
-        print(f"ei : {ei}")
-        print(f"ei类型: {type(ei)}")
-        print(f"ei中数据的类型: {type(ei[0])}")
-        # 获取当前被消除的行
-        row_target = get_row(matrix, index)
-        j_set = find_set_j(matrix, index + 1, row_target, ei)
-        print(f"j_set : {j_set}")
-        # print(f"j_set长度为 : {len(j_set)}")
-        if j_set is not None:
-            # 根据j和i生成Steiner树
-            node_set = sorted([index] + j_set)
-            print(f"node_set : {node_set}")
-            tree_from_nx = approximation.steiner_tree(graph, node_set)
-            # 获取Steiner树中的顶点
-            tmp_v = tree_from_nx.nodes
-            print(f"tmp_v : {tmp_v}")
-            # 获取用来生成树的顶点集合
-            vertex = confirm_steiner_point(node_set, tmp_v)
-            # 获取用来生成树的边集合
-            edges = [e for e in tree_from_nx.edges]
-            print(f"vertex : {vertex}")
-            print(f"edges : {edges}")
-            # 生成树
-            tree = Tree(vertex, edges, index)
-            root = tree.gen_tree()
-            print(f"root.get_value() : {root.get_value()}")
-            # 记录CNOT门
-            CNOT_list = []
-            # 执行 行消元
-            m, cnot = row_elim(matrix, root, CNOT_list)
-            CNOT += cnot
-            print(f"行消元后的矩阵 : ")
-            print(m)
-            print(f"行消元过程中使用的CNOT门: {cnot}")
-            print("删除当前顶点")
-        graph.remove_node(index)
-        # 恢复 列消元标志位
-        col_flag = True
-    print(f"所有CNOT门: {CNOT}")
-    # 将 CNOT 根据映射转换
-    map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15}
-    new_CNOT = []
-    for cnot in CNOT:
-        control = map_dict.get(cnot[0])
-        target = map_dict.get(cnot[1])
-        new_CNOT.append((control, target))
-    print(new_CNOT)
-    return new_CNOT
 
 
-def col_row_eli_of_ibmq_square9Q(file_name):
+def col_row_eli_of_ibmq_square9Q(file_name,order):
     # 1. 获取 ibmq_quito 架构的图
     square9Q = Square9Q()
-    graph = square9Q.get_graph()
+
     # 2. 读取线路生成矩阵
     circuit_file = file_name
     matrix = get_circuits_to_matrix(circuit_file)
@@ -2035,9 +1740,13 @@ def col_row_eli_of_ibmq_square9Q(file_name):
     # 3. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
-    order = [4, 1, 2, 3, 0, 5, 6, 7, 8]
+    # order = [4, 1, 2, 3, 0, 5, 6, 7, 8]
     update_matrix(matrix, order)
     print(matrix)
+
+    square9Q.modify_edges(order)
+    graph = square9Q.get_graph()
+
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     # 默认进行行列消元
     col_flag = True
@@ -2133,22 +1842,29 @@ def col_row_eli_of_ibmq_square9Q(file_name):
         graph.remove_node(index)
         # 恢复 列消元标志位
         col_flag = True
-    print(f"所有CNOT门: {CNOT}")
-    # 将 CNOT 根据映射转换
-    map_dict = {0: 4, 1: 1, 2: 2, 3: 3, 4: 0, 5: 5, 6: 6, 7: 7, 8: 8}
-    new_CNOT = []
-    for cnot in CNOT:
-        control = map_dict.get(cnot[0])
-        target = map_dict.get(cnot[1])
-        new_CNOT.append((control, target))
-    print(new_CNOT)
-    return new_CNOT
+    if m * Mat2.id(16) == Mat2.id(16):
+
+        print(f"所有CNOT门: {CNOT}")
+
+        # 将 CNOT 根据映射转换
+        # map_dict = {0: 3, 1: 4, 2: 5, 3: 6, 4: 7, 5: 8, 6: 9, 7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15, 13: 0, 14: 1, 15: 2}
+        map_dict = {old: new for old, new in zip(range(16), order)}
+        new_CNOT = []
+        for cnot in CNOT:
+            control = map_dict.get(cnot[0])
+            target = map_dict.get(cnot[1])
+            new_CNOT.append((control, target))
+        print(new_CNOT)
+        return new_CNOT
+    else:
+        return 99999999999
 
 
-def col_row_eli_of_ibmq_rigetti16qAspen(file_name):
+
+def col_row_eli_of_ibmq_rigetti16qAspen(file_name,order):
     # 1. 获取 ibmq_quito 架构的图
-    rigetti16qAspen = Rigetti16qAspen()
-    graph = rigetti16qAspen.get_graph()
+    rigetti16qAspen = Rigetti16qAspen_old()
+
     # 2. 读取线路生成矩阵
     circuit_file = file_name
     matrix = get_circuits_to_matrix(circuit_file)
@@ -2162,10 +1878,14 @@ def col_row_eli_of_ibmq_rigetti16qAspen(file_name):
     # 3. 记录CNOT门用来生成线路
     CNOT = []
     # 5. 进入循环
-    order = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2]
+    # order = [4, 3, 6, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2]
     update_matrix(matrix, order)
     print("更新后的矩阵为: ")
     print(matrix)
+
+    rigetti16qAspen.modify_edges(order)
+    graph = rigetti16qAspen.get_graph()
+
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     # 默认进行行列消元
     col_flag = True
@@ -2261,23 +1981,30 @@ def col_row_eli_of_ibmq_rigetti16qAspen(file_name):
         graph.remove_node(index)
         # 恢复 列消元标志位
         col_flag = True
-    print(f"所有CNOT门: {CNOT}")
-    # 将 CNOT 根据映射转换
-    map_dict = {0: 3, 1: 4, 2: 5, 3: 6, 4: 7, 5: 8, 6: 9, 7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15, 13: 0, 14: 1, 15: 2}
-    new_CNOT = []
-    for cnot in CNOT:
-        control = map_dict.get(cnot[0])
-        target = map_dict.get(cnot[1])
-        new_CNOT.append((control, target))
-    print(new_CNOT)
-    return new_CNOT
+    # 单位矩阵
+
+    if m*Mat2.id(16)== Mat2.id(16):
+
+        print(f"所有CNOT门: {CNOT}")
+
+        # 将 CNOT 根据映射转换
+        # map_dict = {0: 3, 1: 4, 2: 5, 3: 6, 4: 7, 5: 8, 6: 9, 7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15, 13: 0, 14: 1, 15: 2}
+        map_dict = {old: new for old, new in zip(range(16), order)}
+        new_CNOT = []
+        for cnot in CNOT:
+            control = map_dict.get(cnot[0])
+            target = map_dict.get(cnot[1])
+            new_CNOT.append((control, target))
+        print(new_CNOT)
+        return new_CNOT
+    else:
+        return 99999999999
 
 
-
-def col_row_eli_of_ibmq_square16Q(file_name):
-    # 1. 获取 ibmq_quito 架构的图
-    square16Q = Square16Q()
-    graph = square16Q.get_graph()
+def col_row_eli_of_ibmq_qx5(file_name,order):
+    # 1. 获取 ibmq_qx5 架构的图
+    ibmq_qx5 = IbmqQx5()
+    # graph = ibmq_qx5.get_graph()
     # 2. 读取线路生成矩阵
     circuit_file = file_name
     matrix = get_circuits_to_matrix(circuit_file)
@@ -2293,8 +2020,12 @@ def col_row_eli_of_ibmq_square16Q(file_name):
     # 5. 进入循环
     # for index in range(rank):
     # matrix = update_matrix(matrix, order)
-    print(f"更新后的matrix:")
+    update_matrix(matrix, order)
+    print("更新后的矩阵为: ")
     print(matrix)
+
+    ibmq_qx5.modify_edges(order)
+    graph = ibmq_qx5.get_graph()
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     # 默认进行行列消元
     col_flag = True
@@ -2390,16 +2121,24 @@ def col_row_eli_of_ibmq_square16Q(file_name):
         graph.remove_node(index)
         # 恢复 列消元标志位
         col_flag = True
-    print(f"所有CNOT门: {CNOT}")
-    # 将 CNOT 根据映射转换
-    map_dict = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15}
-    new_CNOT = []
-    for cnot in CNOT:
-        control = map_dict.get(cnot[0])
-        target = map_dict.get(cnot[1])
-        new_CNOT.append((control, target))
-    print(new_CNOT)
-    return new_CNOT
+    if m * Mat2.id(16) == Mat2.id(16):
+
+        print(f"所有CNOT门: {CNOT}")
+
+        # 将 CNOT 根据映射转换
+        # map_dict = {0: 3, 1: 4, 2: 5, 3: 6, 4: 7, 5: 8, 6: 9, 7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15, 13: 0, 14: 1, 15: 2}
+        map_dict = {old: new for old, new in zip(range(16), order)}
+        new_CNOT = []
+        for cnot in CNOT:
+            control = map_dict.get(cnot[0])
+            target = map_dict.get(cnot[1])
+            new_CNOT.append((control, target))
+        print(new_CNOT)
+        return new_CNOT
+    else:
+        return 99999999999
+
+
 
 def test_gen_circuit_old(qubits, file):
     # file = "/Users/kungfu/PycharmWorkspace/Optimization_of_CNOT_circuits/circuits/steiner/5qubits/5/Original11.qasm"
@@ -2414,6 +2153,8 @@ def test_gen_circuit_old(qubits, file):
     circuit.draw("mpl")
     print(circuit)
     # circuit.qasm(filename=f"add-exam/result-circuits/16qubits/hwb_12.qasm")
+
+
 
     # device_backend = FakeYorktown()
     #
@@ -2445,19 +2186,6 @@ def test_gen_circuit_new(qubits, cnots, file_name):
     circuit.draw("mpl")
     print(circuit)
     circuit.qasm(filename=f"add-exam/result-circuits/B&D_circuits_synthesize/{file_name}-{qubits}qubits_synthesis.qasm")
-
-
-def test_gen_circuit_add_exm(qubits, cnots, arch, gate, file_index):
-    # 根据cnot门列表, 生成线路
-    circuit = QuantumCircuit(qubits)
-    for cnot_gate in cnots:
-        control = cnot_gate[0]
-        target = cnot_gate[1]
-        circuit.cx(control, target)
-    circuit.measure_all()
-    circuit.draw("mpl")
-    print(circuit)
-    circuit.qasm(filename=f"add-exam/result-circuits/steiner/{qubits}qubits/{gate}/{arch}/Original{file_index}.qasm")
 
     # device_backend = FakeYorktown()
     #
@@ -2503,6 +2231,7 @@ def execute_circuit():
             circuit.qasm(filename=f"./result/01234-02134/{gate}/circuit{i}.qasm")
 
 
+
 def execute_benchmark():
     file_list = ['4gt5_75', '4gt13_90', '4gt13_91', '4gt13_92', '4mod5-v1_22', '4mod5-v1_23', '4mod5-v1_24', 'alu-v0_27', 'alu-v3_35', 'alu-v4_36', 'alu-v4_37', 'decod24-v2_43',
                  'hwb4_49', 'mod5mils_65', 'mod10_171']
@@ -2530,7 +2259,6 @@ def update_matrix(matrix, order):
     print(f"矩阵的秩为:{matrix_rank}")
     # new_matrix = Mat2.id(matrix_rank)
     new_matrix = Mat2(np.identity(matrix_rank))
-    print(new_matrix)
     x = np.array(new_matrix.data)
     new_matrix.data = x
     # print(new_matrix)
@@ -2554,7 +2282,6 @@ def eli_of_ibmq_quatio(cnot_qasm):
     # print(circuit)
     return circuit
 
-
 def eli_of_ibmq_guadalupe(cnot_qasm):
     cnots = col_row_eli_of_ibmq_guadalupe(cnot_qasm)
     circuit = QuantumCircuit(16)
@@ -2562,68 +2289,13 @@ def eli_of_ibmq_guadalupe(cnot_qasm):
         control = cnot_gate[0]
         target = cnot_gate[1]
         circuit.cx(control, target)
+    # circuit.measure_all()
+    # circuit.draw("mpl")
+    # print(circuit)
     return circuit
 
 
-def eli_of_ibmq_lagos(cnot_qasm):
-    cnots = col_row_eli_of_ibmq_lagos(cnot_qasm)
-    circuit = QuantumCircuit(7)
-    for cnot_gate in cnots:
-        control = cnot_gate[0]
-        target = cnot_gate[1]
-        circuit.cx(control, target)
-    return circuit
 
-
-def eli_of_ibmq_almaden(cnot_qasm):
-    cnots = col_row_eli_of_ibmq_almaden(cnot_qasm)
-    circuit = QuantumCircuit(20)
-    for cnot_gate in cnots:
-        control = cnot_gate[0]
-        target = cnot_gate[1]
-        circuit.cx(control, target)
-    return circuit
-
-
-def eli_of_ibmq_tokyo(cnot_qasm):
-    cnots = col_row_eli_of_ibmq_tokyo(cnot_qasm)
-    print(f"综合后的CNOT门数: {len(cnots)}")
-    circuit = QuantumCircuit(20)
-    for cnot_gate in cnots:
-        control = cnot_gate[0]
-        target = cnot_gate[1]
-        circuit.cx(control, target)
-    return circuit, len(cnots)
-
-
-def eli_of_ibmq_melbourne(cnot_qasm):
-    cnots = col_row_eli_of_ibmq_melbourne(cnot_qasm)
-    circuit = QuantumCircuit(14)
-    for cnot_gate in cnots:
-        control = cnot_gate[0]
-        target = cnot_gate[1]
-        circuit.cx(control, target)
-    return circuit
-
-
-def eli_of_ibmq_qx5(cnot_qasm):
-    cnots = col_row_eli_of_ibmq_qx5(cnot_qasm)
-    circuit = QuantumCircuit(16)
-    for cnot_gate in cnots:
-        control = cnot_gate[0]
-        target = cnot_gate[1]
-        circuit.cx(control, target)
-    return circuit
-
-
-def eli_of_ibmq_square9Q(cnot_qasm):
-    cnots = col_row_eli_of_ibmq_qx5(cnot_qasm)
-    circuit = QuantumCircuit(16)
-    for cnot_gate in cnots:
-        control = cnot_gate[0]
-        target = cnot_gate[1]
-        circuit.cx(control, target)
-    return circuit
 
 
 if __name__ == '__main__':
@@ -2632,9 +2304,9 @@ if __name__ == '__main__':
     # test_gen_circuit()
     # col_row_eli_of_ibmq_guadalupe("./circuits/benchmark/15_and_16_qubits_test/16qubit_circuit/cnt3-5_179.qasm")
     # circuit_file = "./circuits/benchmark/15_and_16_qubits_test/16qubit_circuit/cnt3-5_179.qasm"
-    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 3
+    # circuit_file = "./circuits/steiner/5qubits/10/Original11.qasm"  # 1, 4
     # matrix = get_circuits_to_matrix(circuit_file)
-    # order = [0, 1, 2, 3, 3, 5, 6, 7, 9, 5, 10, 11, 14, 13, 12, 15]
+    # order = [0, 1, 2, 3, 4, 5, 6, 7, 9, 8, 10, 11, 14, 13, 12, 15]
     # update_matrix(matrix, order)
 
     # file_list = ['ham15_107', 'dc2_222', 'ham15_108', 'rd84_143', 'ham15_109', 'misex1_241', 'rd84_142']
@@ -2698,6 +2370,7 @@ if __name__ == '__main__':
     #     cnots = col_row_eli_of_ibmq_manhattan(f'./circuits/benchmark/B&D/B&D_circuits/{cir}-65qubits-delete-singlegate.qasm')
     #     test_gen_circuit_new(qubits, cnots, cir)
 
+
     # ---------------------------------------------------------------------------
     # cir = "Bernstein-Vazirani"
     # qubits = 27
@@ -2718,26 +2391,6 @@ if __name__ == '__main__':
     # circuit.measure_all()
     # circuit.draw("mpl")
     # print(circuit)
-
-    # get_circuits_to_matrix("circuits/benchmark/16/random/16_1000_100%.qasm")
-
-    # counts_list = []
-    # for i in range(20):
-    #     cnots, cnot_counts = eli_of_ibmq_tokyo(f'./circuits/256/Original{i}.qasm')
-    #     counts_list.append(cnot_counts)
-    # sum = 0
-    # for c in counts_list:
-    #     sum = sum + c
-    # res = sum / len(counts_list)
-    # print(res)
-
-    # 测试5量子位 消元过程
-    # eli_of_ibmq_quatio("/Users/kungfu/gitworkspace/github/optimization-of-cnot-circuits-for-paper/circuits/benchmark/5qubits/qasm/4gt5_75.qasm")
-
-    # 测试20量子位消元过程
-    # eli_of_ibmq_tokyo("./circuits/256/Original0.qasm")
-
-    # col_row_eli_of_ibmq_guadalupe(f'./circuits/benchmark/B&D/B&D_circuits/Bernstein-Vazirani-16qubits-delete-singlegate.qasm')
 
     # 新增实验, qx5架构
     # achitecture = 'qx5'
@@ -2763,7 +2416,7 @@ if __name__ == '__main__':
     #         print("Execution Time:", execution_time, "seconds")
     #         test_gen_circuit_add_exm(qubits, cnots, achitecture, gate, i)
 
-    # 新增实验, square9Q架构
+    # 新增实验, square16Q架构
     # achitecture = 'square16Q'
     # qubits = 16
     # for gate in [4, 8, 16, 32, 64, 128, 256]:
@@ -2775,14 +2428,28 @@ if __name__ == '__main__':
     #         print("Execution Time:", execution_time, "seconds")
     #         test_gen_circuit_add_exm(qubits, cnots, achitecture, gate, i)
 
-    # # 新增实验, Rigetti16qAspen架构
-    achitecture = 'rigetti16qAspen'
-    qubits = 16
-    for gate in [4, 8, 16, 32, 64, 128, 256]:
-        for i in range(20):
-            start_time = time.time()
-            cnots = col_row_eli_of_ibmq_rigetti16qAspen(f'circuits/steiner/{qubits}qubits/{gate}/Original{i}.qasm')
-            end_time = time.time()
-            execution_time = end_time - start_time
-            print("Execution Time:", execution_time, "seconds")
-            test_gen_circuit_add_exm(qubits, cnots, achitecture, gate, i)
+    # 新增实验, Rigetti16qAspen架构
+    # achitecture = 'rigetti16qAspen'
+    # qubits = 16
+    # for gate in [4, 8, 16, 32, 64, 128, 256]:
+    #     for i in range(20):
+    #         start_time = time.time()
+    #         cnots = col_row_eli_of_ibmq_rigetti16qAspen(f'circuits/steiner/{qubits}qubits/{gate}/Original{i}.qasm')
+    #         end_time = time.time()
+    #         execution_time = end_time - start_time
+    #         print("Execution Time:", execution_time, "seconds")
+    #         test_gen_circuit_add_exm(qubits, cnots, achitecture, gate, i)
+
+    # 新增实验, IbmqTokyo架构
+    # achitecture = 'ibmqtokyo'
+    # qubits = 20
+    # for gate in [4, 8, 16, 32, 64, 128, 256]:
+    #     for i in range(20):
+    #         start_time = time.time()
+    #         cnots = col_row_eli_of_ibmq_tokyo(f'circuits/steiner/{qubits}qubits/{gate}/Original{i}.qasm')
+    #         end_time = time.time()
+    #         execution_time = end_time - start_time
+    #         print("Execution Time:", execution_time, "seconds")
+    #         test_gen_circuit_add_exm(qubits, cnots, achitecture, gate, i)
+
+    cnots = col_row_eli_of_ibmq_rigetti16qAspen(f'./circuits/steiner/16qubits/4/Original0.qasm')
