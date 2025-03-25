@@ -1,4 +1,6 @@
 # 项目说明
-- 主程序为 `circuits_synthetic_without_HamiltonPath.py`
-- 架构类在 `graph.py`中定义, 已定义父类, 子类可直接继承父类方法
+> **Current Status: 🚧 Continuously updating | New version to be released in the near future**  
+> Welcome to the project, stay tuned for more optimizations and new features!
+- The main process is  `circuits_synthetic_without_HamiltonPath.py`
+- achitecture class is defined in `graph.py`
 
