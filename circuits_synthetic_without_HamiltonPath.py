@@ -224,11 +224,28 @@ def is_row_eql(row1, row2):
         print("两行数据不匹配!!!")
 
 
+# def find_set_j(m, tar_row_index, row_tar, ei):
+#     # 根据目标行, 生成待遍历的列表
+#     length = m.rank()
+#     all_set = []
+#     print()
+#     for i in range(1, length):
+#         all_set += list(combinations([j for j in range(tar_row_index, length)], i))
+#     for j_set in all_set:
+#         # 暂存ei, 用来恢复ei
+#         tmp_row = ei.copy()
+#         for i in j_set:
+#             row = get_row(m, i)
+#             row_add(row, tmp_row)
+#         if tmp_row == row_tar:
+#             return list(j_set)
+
 def find_set_j(m, tar_row_index, row_tar, ei):
     # 根据目标行, 生成待遍历的列表
+    global fina_j_set
     length = m.rank()
     all_set = []
-    print()
+    j_set_list = []
     for i in range(1, length):
         all_set += list(combinations([j for j in range(tar_row_index, length)], i))
     for j_set in all_set:
@@ -238,7 +255,14 @@ def find_set_j(m, tar_row_index, row_tar, ei):
             row = get_row(m, i)
             row_add(row, tmp_row)
         if tmp_row == row_tar:
-            return list(j_set)
+            print("*******************找到目标行*******************")
+            print(f"目标行集合 : {j_set}")
+            j_set_list.append(j_set)
+        fina_j_set = j_set
+    print("*******************所有目标行结果*******************")
+    print(j_set_list)
+    print("*******************目标行检索结束*******************")
+    return list(fina_j_set)
 
 
 
@@ -1193,7 +1217,7 @@ def col_row_eli_of_ibmq_almaden(file_name):
     return new_CNOT
 
 
-def col_row_eli_of_ibmq_tokyo(file_name,order):
+def col_row_eli_of_ibmq_tokyo(file_name):
     # 1. 获取 ibmq_quito 架构的图
     # ibmq_tokyo = IbmqTokyo_new()
     ibmq_tokyo = IbmqTokyo()
@@ -1213,7 +1237,7 @@ def col_row_eli_of_ibmq_tokyo(file_name,order):
     update_matrix(matrix, order)
     print(matrix)
 
-    ibmq_tokyo.modify_edges(order)
+    # ibmq_tokyo.modify_edges(order)
     graph = ibmq_tokyo.get_graph()
 
     eli_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
@@ -2452,4 +2476,6 @@ if __name__ == '__main__':
     #         print("Execution Time:", execution_time, "seconds")
     #         test_gen_circuit_add_exm(qubits, cnots, achitecture, gate, i)
 
-    cnots = col_row_eli_of_ibmq_rigetti16qAspen(f'./circuits/steiner/16qubits/4/Original0.qasm')
+    # cnots = col_row_eli_of_ibmq_rigetti16qAspen(f'./circuits/steiner/16qubits/4/Original0.qasm')
+    order = [0, 1, 2, 3, 4, 9, 8, 7, 6, 5, 10, 11, 12, 14, 18, 14, 15, 16, 17, 19]
+    cnots = col_row_eli_of_ibmq_tokyo(f'circuits/steiner/20qubits/256/Original0.qasm')
